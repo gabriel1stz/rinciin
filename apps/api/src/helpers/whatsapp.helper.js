@@ -2,7 +2,7 @@ export async function sendWhatsAppNotification(phone, message) {
   if (!phone || !message) return false;
 
   try {
-    const botUrl = process.env.BOT_INTERNAL_URL || "http://localhost:3001/send-message";
+    const botUrl = process.env.BOT_INTERNAL_URL || "https://zesty-youth-production-7a74.up.railway.app/send-message";
 
     const res = await fetch(botUrl, {
       method: "POST",
