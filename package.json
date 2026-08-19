@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build": "cd apps/api && npm run build",
     "dev:web": "cd apps/web && npm run dev",
     "dev:api": "cd apps/api && npm run dev",
     "dev:bot": "cd apps/bot && npm run dev",
