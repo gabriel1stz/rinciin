@@ -30,3 +30,9 @@
     padding: var(--space-4);
   }
 }
+
+@media (max-width: 640px) {
+  .app-content {
+    padding: var(--space-3);
+  }
+}

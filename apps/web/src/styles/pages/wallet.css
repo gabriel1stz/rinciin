@@ -51,3 +51,16 @@
   color: var(--text-primary);
   margin-top: var(--space-4);
 }
+
+@media (max-width: 640px) {
+  .wallet-card-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  .wallet-card-premium {
+    padding: var(--space-4);
+  }
+  .wallet-balance {
+    font-size: var(--font-size-xl);
+  }
+}

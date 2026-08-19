@@ -13,7 +13,7 @@ export const AppLayout: React.FC = () => {
   return (
     <div className="app-layout">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block">
+      <div className="app-sidebar-desktop">
         <Sidebar onOpenQuickTransaction={() => setIsQuickTxOpen(true)} />
       </div>
 
@@ -22,12 +22,14 @@ export const AppLayout: React.FC = () => {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         position="left"
-        maxWidth="280px"
+        maxWidth="300px"
       >
-        <Sidebar
-          onOpenQuickTransaction={() => setIsQuickTxOpen(true)}
-          onCloseMobile={() => setIsMobileMenuOpen(false)}
-        />
+        <div style={{ margin: '-1rem' }}>
+          <Sidebar
+            onOpenQuickTransaction={() => setIsQuickTxOpen(true)}
+            onCloseMobile={() => setIsMobileMenuOpen(false)}
+          />
+        </div>
       </Drawer>
 
       {/* Main Container */}

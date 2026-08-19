@@ -60,3 +60,20 @@
   color: var(--text-primary);
   background: var(--bg-tertiary);
 }
+
+@media (max-width: 640px) {
+  .modal-backdrop {
+    padding: var(--space-2);
+  }
+  .modal-content {
+    max-height: 92vh;
+    border-radius: var(--radius-xl);
+  }
+  .modal-header,
+  .modal-body {
+    padding: var(--space-4);
+  }
+  .modal-footer {
+    padding: var(--space-3) var(--space-4);
+  }
+}

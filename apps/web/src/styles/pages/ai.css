@@ -74,3 +74,22 @@
   color: var(--text-primary);
   border-color: var(--primary-500);
 }
+
+@media (max-width: 768px) {
+  .ai-chat-layout {
+    height: calc(100dvh - var(--header-height) - var(--space-8));
+    border-radius: var(--radius-2xl);
+  }
+  .ai-messages-container {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+  .chat-bubble {
+    max-width: 90%;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-xs);
+  }
+  .ai-input-area {
+    padding: var(--space-3) var(--space-4);
+  }
+}

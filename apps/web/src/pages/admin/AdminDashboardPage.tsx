@@ -336,102 +336,36 @@ export const AdminDashboardPage: React.FC = () => {
         }).length;
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--bg-secondary)',
-        color: 'var(--text-primary)',
-        fontFamily: 'inherit',
-      }}
-    >
+    <div className="admin-page-wrapper">
       {/* Admin Top Navbar */}
-      <header
-        style={{
-          background: 'var(--card-bg)',
-          borderBottom: '1px solid var(--border-color)',
-          padding: '14px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'sticky',
-          top: 0,
-          zIndex: 40,
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #1e40af, #3b82f6)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              fontWeight: 800,
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-            }}
-          >
-            <ShieldCheck size={22} />
+      <header className="admin-header">
+        <div className="admin-header-brand">
+          <div className="admin-header-logo">
+            <ShieldCheck size={20} />
           </div>
-          <div>
-            <div
-              style={{
-                fontWeight: 800,
-                fontSize: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              <span>Rinci.in Ops & Admin Center</span>
-              <span
-                style={{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  background: '#dbeafe',
-                  color: '#1e40af',
-                }}
-              >
-                SUPER_ADMIN
-              </span>
+          <div className="admin-header-title-group">
+            <div className="admin-header-title">
+              <span>Rinci.in Ops & Admin</span>
+              <span className="admin-header-badge">SUPER_ADMIN</span>
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Server Node: {systemHealth?.system?.nodeVersion || 'v20.x'} • Logged in:{' '}
-              {admin?.email || 'admin@rinciin.local'}
+            <div className="admin-header-subtitle">
+              Node: {systemHealth?.system?.nodeVersion || 'v20.x'} • {admin?.email || 'admin@rinciin.local'}
             </div>
           </div>
         </div>
 
         {/* Header Controls */}
-        <div className="flex items-center gap-2.5">
+        <div className="admin-header-controls">
           {/* Live Auto Refresh Selector */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              borderRadius: '8px',
-              background: 'var(--bg-primary)',
-              border: '1px solid var(--border-color)',
-              fontSize: '11px',
-            }}
-          >
+          <div className="admin-auto-refresh-box">
             <span
+              className="admin-live-dot"
               style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
                 background: autoRefreshSec > 0 ? '#10b981' : '#94a3b8',
                 boxShadow: autoRefreshSec > 0 ? '0 0 8px #10b981' : 'none',
-                display: 'inline-block',
               }}
             />
-            <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Auto-Live:</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-muted)' }} className="sm-down:hidden">Auto:</span>
             <select
               value={autoRefreshSec}
               onChange={(e) => setAutoRefreshSec(Number(e.target.value))}
@@ -458,10 +392,10 @@ export const AdminDashboardPage: React.FC = () => {
             className="landing-btn-secondary btn-sm"
             disabled={isLoading || isRefreshing}
             title="Muat Ulang Telemetri"
-            style={{ padding: '6px 12px', fontSize: '12px' }}
+            style={{ padding: '6px 10px', fontSize: '12px' }}
           >
             <RefreshCw size={13} className={isLoading || isRefreshing ? 'animate-spin' : ''} />
-            <span>{isRefreshing ? 'Syncing...' : 'Refresh'}</span>
+            <span className="btn-label-text">{isRefreshing ? 'Syncing...' : 'Refresh'}</span>
           </button>
 
           <button
@@ -469,54 +403,46 @@ export const AdminDashboardPage: React.FC = () => {
             onClick={handleExportCsv}
             disabled={isExportingCsv}
             className="landing-btn-secondary btn-sm"
-            style={{ padding: '6px 12px', fontSize: '12px' }}
+            style={{ padding: '6px 10px', fontSize: '12px' }}
             title="Download CSV Seluruh Pengguna"
           >
             <Download size={13} className={isExportingCsv ? 'animate-spin' : ''} />
-            <span>{isExportingCsv ? 'Mengunduh...' : 'Export CSV'}</span>
+            <span className="btn-label-text">{isExportingCsv ? 'Mengunduh...' : 'CSV'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleLogout}
             className="landing-btn-ghost btn-sm text-danger"
-            style={{ padding: '6px 12px', fontSize: '12px' }}
+            style={{ padding: '6px 10px', fontSize: '12px' }}
+            title="Keluar dari sesi admin"
           >
             <LogOut size={13} />
-            <span>Keluar</span>
+            <span className="btn-label-text">Keluar</span>
           </button>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main style={{ maxWidth: '1360px', margin: '0 auto', padding: '24px' }}>
+      <main className="admin-main-content">
         {/* Navigation Tabs */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '8px',
-            borderBottom: '1px solid var(--border-color)',
-            marginBottom: '24px',
-            paddingBottom: '8px',
-            overflowX: 'auto',
-          }}
-        >
+        <div className="admin-tabs-nav">
           {[
-            { id: 'overview', label: '📊 Ringkasan & Metrik' },
+            { id: 'overview', label: '📊 Ringkasan' },
             { id: 'users', label: `👥 User (${usersList.length})` },
             { id: 'broadcast', label: '📢 Broadcast WA' },
-            { id: 'health', label: '⚡ Health Monitoring', badge: systemHealth?.status || 'OK' },
+            { id: 'health', label: '⚡ Health', badge: systemHealth?.status || 'OK' },
             {
               id: 'security',
-              label: '🛡️ Security Monitoring',
+              label: '🛡️ Security',
               badge: securityMetrics?.grade || 'A+',
             },
             {
               id: 'sla',
-              label: '⏱️ SLA & Reliability',
+              label: '⏱️ SLA',
               badge: `${slaMetrics?.currentAvailability || 99.9}%`,
             },
-            { id: 'usage', label: '📈 Usage & Kapasitas' },
+            { id: 'usage', label: '📈 Usage' },
             { id: 'ai', label: `🤖 AI Logs (${aiLogs.length})` },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
@@ -525,34 +451,11 @@ export const AdminDashboardPage: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id as any)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  background: isActive ? 'var(--primary-600)' : 'transparent',
-                  color: isActive ? '#ffffff' : 'var(--text-secondary)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  transition: 'all 0.15s ease',
-                }}
+                className={`admin-tab-btn ${isActive ? 'active' : ''}`}
               >
                 <span>{tab.label}</span>
                 {tab.badge && (
-                  <span
-                    style={{
-                      fontSize: '10px',
-                      fontWeight: 800,
-                      padding: '1px 6px',
-                      borderRadius: '10px',
-                      background: isActive ? 'rgba(255,255,255,0.25)' : 'var(--bg-primary)',
-                      color: isActive ? '#ffffff' : 'var(--primary-600)',
-                    }}
-                  >
+                  <span className="admin-tab-badge">
                     {tab.badge}
                   </span>
                 )}
@@ -565,111 +468,70 @@ export const AdminDashboardPage: React.FC = () => {
         {/* TAB 1: OVERVIEW METRICS */}
         {/* ========================================================================= */}
         {activeTab === 'overview' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '16px',
-              }}
-            >
-              <div
-                style={{
-                  padding: '20px',
-                  borderRadius: '16px',
-                  background: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="admin-stats-grid">
+              <div className="admin-stat-card">
+                <div className="flex items-center justify-between mb-1">
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
                     TOTAL USERS
                   </span>
                   <Users size={18} color="var(--primary-600)" />
                 </div>
-                <div style={{ fontSize: '28px', fontWeight: 800 }}>
+                <div className="admin-stat-value">
                   {dashboardData?.totalUsers ?? usersList.length}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--success-text)', marginTop: '4px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--success-text)', marginTop: '2px' }}>
                   ● {dashboardData?.activeUsers ?? 1} Sesi Aktif
                 </div>
               </div>
 
-              <div
-                style={{
-                  padding: '20px',
-                  borderRadius: '16px',
-                  background: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>
+              <div className="admin-stat-card">
+                <div className="flex items-center justify-between mb-1">
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
                     PREMIUM / PRO USERS
                   </span>
                   <Award size={18} color="#f59e0b" />
                 </div>
-                <div style={{ fontSize: '28px', fontWeight: 800, color: '#f59e0b' }}>
+                <div className="admin-stat-value" style={{ color: '#f59e0b' }}>
                   {dashboardData?.premiumUsers ?? 0}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
                   Pelanggan Pro & Family aktif
                 </div>
               </div>
 
-              <div
-                style={{
-                  padding: '20px',
-                  borderRadius: '16px',
-                  background: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>
+              <div className="admin-stat-card">
+                <div className="flex items-center justify-between mb-1">
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
                     TOTAL TRANSAKSI
                   </span>
                   <TrendingUp size={18} color="#10b981" />
                 </div>
-                <div style={{ fontSize: '28px', fontWeight: 800 }}>
+                <div className="admin-stat-value">
                   {dashboardData?.totalTransactions ?? 0}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
                   {dashboardData?.totalWallets ?? 0} Dompet Aktif
                 </div>
               </div>
 
-              <div
-                style={{
-                  padding: '20px',
-                  borderRadius: '16px',
-                  background: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>
+              <div className="admin-stat-card">
+                <div className="flex items-center justify-between mb-1">
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
                     SLA AVAILABILITY
                   </span>
                   <Zap size={18} color="#8b5cf6" />
                 </div>
-                <div style={{ fontSize: '28px', fontWeight: 800, color: '#8b5cf6' }}>
+                <div className="admin-stat-value" style={{ color: '#8b5cf6' }}>
                   {slaMetrics?.currentAvailability || 99.98}%
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
                   Target SLA: {slaMetrics?.slaTarget || 99.9}% Uptime
                 </div>
               </div>
             </div>
 
-            <div
-              style={{
-                padding: '24px',
-                borderRadius: '16px',
-                background: 'var(--card-bg)',
-                border: '1px solid var(--border-color)',
-              }}
-            >
+            <div className="admin-card">
               <div className="flex items-center justify-between mb-4">
                 <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Pengguna Terbaru</h3>
                 <button
@@ -688,34 +550,28 @@ export const AdminDashboardPage: React.FC = () => {
                 </button>
               </div>
 
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+              <div className="admin-table-container">
+                <table className="admin-table">
                   <thead>
-                    <tr
-                      style={{
-                        borderBottom: '1px solid var(--border-color)',
-                        textAlign: 'left',
-                        color: 'var(--text-muted)',
-                      }}
-                    >
-                      <th style={{ padding: '10px' }}>Nama</th>
-                      <th style={{ padding: '10px' }}>Nomor HP</th>
-                      <th style={{ padding: '10px' }}>Email</th>
-                      <th style={{ padding: '10px' }}>Tier</th>
-                      <th style={{ padding: '10px' }}>Terdaftar</th>
+                    <tr>
+                      <th>Nama</th>
+                      <th>Nomor HP</th>
+                      <th>Email</th>
+                      <th>Tier</th>
+                      <th>Terdaftar</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(dashboardData?.recentUsers || usersList.slice(0, 5)).map((u: any) => (
-                      <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                        <td style={{ padding: '12px 10px', fontWeight: 600 }}>
+                      <tr key={u.id}>
+                        <td style={{ fontWeight: 600 }}>
                           {u.name || 'User Baru'}
                         </td>
-                        <td style={{ padding: '12px 10px', fontFamily: 'var(--font-mono)' }}>
+                        <td style={{ fontFamily: 'var(--font-mono)' }}>
                           {u.phone || '-'}
                         </td>
-                        <td style={{ padding: '12px 10px' }}>{u.email || '-'}</td>
-                        <td style={{ padding: '12px 10px' }}>
+                        <td>{u.email || '-'}</td>
+                        <td>
                           <span
                             style={{
                               fontSize: '10px',
@@ -732,7 +588,7 @@ export const AdminDashboardPage: React.FC = () => {
                             {u.tier || 'FREE'}
                           </span>
                         </td>
-                        <td style={{ padding: '12px 10px', color: 'var(--text-muted)' }}>
+                        <td style={{ color: 'var(--text-muted)' }}>
                           {formatDateId(new Date(u.createdAt))}
                         </td>
                       </tr>
@@ -748,25 +604,18 @@ export const AdminDashboardPage: React.FC = () => {
         {/* TAB 2: USER MANAGEMENT */}
         {/* ========================================================================= */}
         {activeTab === 'users' && (
-          <div
-            style={{
-              padding: '24px',
-              borderRadius: '16px',
-              background: 'var(--card-bg)',
-              border: '1px solid var(--border-color)',
-            }}
-          >
+          <div className="admin-card">
             <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
               <div>
                 <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '4px' }}>
                   Daftar Pengguna Sistem
                 </h3>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                  Kelola status, hak akses, dan paket tier pelanggan Rinci.in
+                  Kelola status, hak akses, dan paket tier pelanggan Rinci.in ({filteredUsers.length} user)
                 </p>
               </div>
 
-              <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
+              <div style={{ position: 'relative', width: '100%', maxWidth: '340px' }}>
                 <Search
                   size={16}
                   style={{
@@ -795,43 +644,32 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            {/* Desktop Table View */}
+            <div className="admin-table-container admin-table-desktop">
+              <table className="admin-table">
                 <thead>
-                  <tr
-                    style={{
-                      borderBottom: '1px solid var(--border-color)',
-                      textAlign: 'left',
-                      color: 'var(--text-muted)',
-                    }}
-                  >
-                    <th style={{ padding: '10px' }}>Nama & Kontak</th>
-                    <th style={{ padding: '10px' }}>Nomor WhatsApp</th>
-                    <th style={{ padding: '10px' }}>Paket Saat Ini</th>
-                    <th style={{ padding: '10px' }}>Masa Aktif Paket</th>
-                    <th style={{ padding: '10px' }}>Terdaftar</th>
-                    <th style={{ padding: '10px', textAlign: 'center' }}>Aksi Paket</th>
+                  <tr>
+                    <th>Nama & Kontak</th>
+                    <th>Nomor WhatsApp</th>
+                    <th>Paket Saat Ini</th>
+                    <th>Masa Aktif Paket</th>
+                    <th>Terdaftar</th>
+                    <th style={{ textAlign: 'center' }}>Aksi Paket</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.map((u) => (
-                    <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '12px 10px' }}>
+                    <tr key={u.id}>
+                      <td>
                         <div style={{ fontWeight: 600 }}>{u.name || 'User Baru'}</div>
                         <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                           {u.email || '-'}
                         </div>
                       </td>
-                      <td
-                        style={{
-                          padding: '12px 10px',
-                          fontFamily: 'var(--font-mono)',
-                          fontWeight: 600,
-                        }}
-                      >
+                      <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
                         {u.phone ? (u.phone.startsWith('62') ? `+${u.phone}` : u.phone) : '-'}
                       </td>
-                      <td style={{ padding: '12px 10px' }}>
+                      <td>
                         <span
                           style={{
                             fontSize: '11px',
@@ -860,17 +698,11 @@ export const AdminDashboardPage: React.FC = () => {
                           {u.tier || 'FREE'}
                         </span>
                       </td>
-                      <td style={{ padding: '12px 10px' }}>{getSubscriptionInfo(u)}</td>
-                      <td
-                        style={{
-                          padding: '12px 10px',
-                          color: 'var(--text-muted)',
-                          fontSize: '11px',
-                        }}
-                      >
+                      <td>{getSubscriptionInfo(u)}</td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
                         {formatDateId(new Date(u.createdAt))}
                       </td>
-                      <td style={{ padding: '12px 10px', textAlign: 'center' }}>
+                      <td style={{ textAlign: 'center' }}>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                           <button
                             type="button"
@@ -918,6 +750,100 @@ export const AdminDashboardPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile User Card List View */}
+            <div className="admin-user-mobile-list">
+              {filteredUsers.map((u) => (
+                <div key={u.id} className="admin-user-mobile-card">
+                  <div className="admin-user-mobile-header">
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '14px' }}>{u.name || 'User Baru'}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                        📱 {u.phone ? (u.phone.startsWith('62') ? `+${u.phone}` : u.phone) : '-'}
+                      </div>
+                      {u.email && (
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                          ✉️ {u.email}
+                        </div>
+                      )}
+                    </div>
+                    <span
+                      style={{
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        textTransform: 'uppercase',
+                        background:
+                          (u.tier || '').toUpperCase() === 'PRO'
+                            ? '#dbeafe'
+                            : (u.tier || '').toUpperCase() === 'FAMILY'
+                            ? '#fef3c7'
+                            : (u.tier || '').toUpperCase() === 'TRIAL'
+                            ? '#e0e7ff'
+                            : '#f1f5f9',
+                        color:
+                          (u.tier || '').toUpperCase() === 'PRO'
+                            ? '#1d4ed8'
+                            : (u.tier || '').toUpperCase() === 'FAMILY'
+                            ? '#b45309'
+                            : (u.tier || '').toUpperCase() === 'TRIAL'
+                            ? '#4338ca'
+                            : '#64748b',
+                      }}
+                    >
+                      {u.tier || 'FREE'}
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    Masa Aktif: {getSubscriptionInfo(u)}
+                  </div>
+
+                  <div className="admin-user-mobile-actions">
+                    <button
+                      type="button"
+                      onClick={() => openTierModal(u)}
+                      className="landing-btn-primary btn-sm"
+                      style={{
+                        flex: 1,
+                        padding: '7px 12px',
+                        fontSize: '11.5px',
+                        fontWeight: 600,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      <Sliders size={13} />
+                      <span>Atur Paket</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setUserToDelete(u)}
+                      className="landing-btn-ghost btn-sm"
+                      style={{
+                        padding: '7px 12px',
+                        fontSize: '11.5px',
+                        fontWeight: 600,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: '#fee2e2',
+                        color: '#dc2626',
+                        borderRadius: '8px',
+                        border: '1px solid #fecaca',
+                      }}
+                    >
+                      <Trash2 size={13} />
+                      <span>Hapus</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -925,14 +851,7 @@ export const AdminDashboardPage: React.FC = () => {
         {/* TAB 3: BROADCAST WHATSAPP */}
         {/* ========================================================================= */}
         {activeTab === 'broadcast' && (
-          <div
-            style={{
-              padding: '24px',
-              borderRadius: '16px',
-              background: 'var(--card-bg)',
-              border: '1px solid var(--border-color)',
-            }}
-          >
+          <div className="admin-card">
             <div className="flex items-center gap-3 mb-6">
               <div
                 style={{
@@ -959,13 +878,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-                gap: '24px',
-              }}
-            >
+            <div className="admin-broadcast-grid">
               {/* Form Input */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {/* 1. Target Audience */}
@@ -2426,31 +2339,8 @@ export const AdminDashboardPage: React.FC = () => {
 
         {/* MODAL: CUSTOM TIER & DURATION */}
         {selectedUserForModal && (
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 100,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(0, 0, 0, 0.65)',
-              backdropFilter: 'blur(6px)',
-              padding: '16px',
-            }}
-          >
-            <div
-              style={{
-                width: '100%',
-                maxWidth: '480px',
-                background: 'var(--card-bg)',
-                borderRadius: '20px',
-                border: '1px solid var(--border-color)',
-                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-                overflow: 'hidden',
-                animation: 'modalPop 0.2s ease-out',
-              }}
-            >
+          <div className="admin-modal-overlay">
+            <div className="admin-modal-dialog">
               <div
                 style={{
                   padding: '18px 24px',
@@ -2699,30 +2589,8 @@ export const AdminDashboardPage: React.FC = () => {
         {/* DELETE USER CONFIRMATION MODAL */}
         {/* ========================================================================= */}
         {userToDelete && (
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0, 0, 0, 0.75)',
-              backdropFilter: 'blur(6px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '16px',
-              zIndex: 50,
-            }}
-          >
-            <div
-              style={{
-                background: 'var(--card-bg)',
-                borderRadius: '20px',
-                border: '1px solid #fecaca',
-                maxWidth: '440px',
-                width: '100%',
-                overflow: 'hidden',
-                boxShadow: '0 25px 50px -12px rgba(220, 38, 38, 0.3)',
-              }}
-            >
+          <div className="admin-modal-overlay">
+            <div className="admin-modal-dialog" style={{ maxWidth: '440px' }}>
               <div
                 style={{
                   padding: '20px 24px',

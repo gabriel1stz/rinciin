@@ -30,5 +30,6 @@
 @import './pages/reports.css';
 @import './pages/ai.css';
 @import './pages/settings.css';
+@import './pages/admin-dashboard.css';
 
 @import './utilities/helpers.css';

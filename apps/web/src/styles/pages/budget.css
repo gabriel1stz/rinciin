@@ -39,3 +39,13 @@
   border-radius: var(--radius-full);
   transition: width var(--transition-normal);
 }
+
+@media (max-width: 640px) {
+  .budget-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  .budget-card {
+    padding: var(--space-4);
+  }
+}

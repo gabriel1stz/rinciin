@@ -1,4 +1,8 @@
 /* sidebar.css - Clean Premium Fintech Navigation */
+.app-sidebar-desktop {
+  display: block;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
@@ -13,7 +17,28 @@
   padding: var(--space-5) var(--space-4);
   z-index: var(--z-sticky);
   transition: transform var(--transition-normal), width var(--transition-normal);
+  overflow-y: auto;
 }
+
+/* When embedded inside Drawer for mobile */
+.drawer-body .sidebar {
+  position: static;
+  width: 100%;
+  min-height: 100%;
+  height: auto;
+  border-right: none;
+  padding: 0;
+  background: transparent;
+  z-index: auto;
+  box-shadow: none;
+}
+
+@media (max-width: 1024px) {
+  .app-sidebar-desktop {
+    display: none !important;
+  }
+}
+
 
 .sidebar-brand {
   display: flex;

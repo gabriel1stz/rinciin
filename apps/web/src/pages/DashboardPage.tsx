@@ -93,8 +93,8 @@ export const DashboardPage: React.FC = () => {
       </motion.div>
 
       {/* 5. Wallets & Budget Overview Row */}
-      <div className="grid grid-cols-12 gap-6">
-        <motion.div variants={itemFadeUp} className="col-span-12 lg:col-span-7" style={{ gridColumn: 'span 7' }}>
+      <div className="dashboard-grid-split">
+        <motion.div variants={itemFadeUp}>
           <WalletOverview
             wallets={wallets}
             isLoading={isLoading}
@@ -102,7 +102,7 @@ export const DashboardPage: React.FC = () => {
           />
         </motion.div>
 
-        <motion.div variants={itemFadeUp} className="col-span-12 lg:col-span-5" style={{ gridColumn: 'span 5' }}>
+        <motion.div variants={itemFadeUp}>
           <BudgetOverview
             budgets={budgets}
             budgetSummary={budgetSummary}

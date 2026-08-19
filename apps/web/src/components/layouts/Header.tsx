@@ -26,8 +26,15 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={onToggleMobileMenu}
           aria-label="Buka Menu Navigasi"
         >
-          <Menu size={22} />
+          <Menu size={20} />
         </button>
+
+        <div className="header-brand-mobile">
+          <div className="header-brand-mobile-logo">
+            <span>r</span>
+          </div>
+          <span>rinci<span style={{ color: 'var(--primary-600)' }}>.in</span></span>
+        </div>
       </div>
 
       <div className="header-right">
@@ -35,10 +42,11 @@ export const Header: React.FC<HeaderProps> = ({
           <Button
             variant="primary"
             size="sm"
+            className="header-tx-btn"
             leftIcon={<Plus size={14} />}
             onClick={onOpenQuickTransaction}
           >
-            + Transaksi
+            <span className="btn-label-text">+ Transaksi</span>
           </Button>
         )}
 
