@@ -190,8 +190,9 @@ export function startInternalServer(port = 3001) {
     res.end(JSON.stringify({ error: "Not Found" }));
   });
 
-  server.listen(port, () => {
-    console.log(`🤖 WhatsApp Bot Server listening on port ${port}`);
+  const listenPort = Number(process.env.PORT) || Number(port) || 3001;
+  server.listen(listenPort, "0.0.0.0", () => {
+    console.log(`🤖 WhatsApp Bot Server listening on 0.0.0.0:${listenPort}`);
   });
 
   return server;
