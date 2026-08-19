@@ -27,7 +27,8 @@ import { startBot } from "./lib/baileys.js";
 import { startInternalServer } from "./server.js";
 import { initCronJobs } from "./cron/scheduler.js";
 
-startInternalServer(Number(process.env.BOT_INTERNAL_PORT) || 3001);
+const port = Number(process.env.PORT) || Number(process.env.BOT_INTERNAL_PORT) || 3001;
+startInternalServer(port);
 initCronJobs();
 startBot();
 

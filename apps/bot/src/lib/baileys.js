@@ -8,22 +8,32 @@ import P from "pino";
 import qrcode from "qrcode-terminal";
 import { Boom } from "@hapi/boom";
 
-import config from "../config/index.js";
 import { handleMessage } from "../handlers/message.handler.js";
-import { setBotSocket } from "../server.js";
+import { setBotSocket, setLatestQr, setConnectionState } from "../server.js";
+
+let currentSock = null;
+
+export async function requestPairingCode(phone) {
+  if (!currentSock) throw new Error("Bot socket belum aktif");
+  const cleanPhone = String(phone).replace(/\D/g, "");
+  const code = await currentSock.requestPairingCode(cleanPhone);
+  return code;
+}
 
 export async function startBot() {
-
   const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
 
-  const { version } =
-    await fetchLatestBaileysVersion();
+  const { version } = await fetchLatestBaileysVersion();
 
   const sock = makeWASocket({
     version,
     auth: state,
-    logger: P({ level: "silent" })
+    logger: P({ level: "silent" }),
+    printQRInTerminal: false
   });
+
+  currentSock = sock;
+  setBotSocket(sock);
 
   sock.ev.on("creds.update", saveCreds);
 
@@ -31,17 +41,24 @@ export async function startBot() {
 
   sock.ev.on("connection.update", ({ connection, qr, lastDisconnect }) => {
     if (qr) {
+      setLatestQr(qr);
       qrcode.generate(qr, { small: true });
-      console.log("📱 Scan QR WhatsApp");
+      console.log("\n========================================");
+      console.log("📱 SCAN QR CODE WHATSAPP");
+      console.log("👉 Buka link browser service bot untuk QR jernih!");
+      console.log("========================================\n");
     }
 
     if (connection === "open") {
       console.log("✅ WhatsApp Connected Successfully");
+      setLatestQr(null);
+      setConnectionState("open");
       reconnectAttempts = 0;
       setBotSocket(sock);
     }
 
     if (connection === "close") {
+      setConnectionState("close");
       const statusCode = new Boom(lastDisconnect?.error)?.output?.statusCode;
 
       console.log("❌ WhatsApp Connection Closed");
@@ -56,11 +73,10 @@ export async function startBot() {
         console.log(`🔄 [Auto-Reconnect] Attempt #${reconnectAttempts} in ${Math.round(backoffMs / 1000)}s...`);
         setTimeout(() => startBot(), backoffMs);
       } else {
-        console.log("🚪 Logged out dari WhatsApp. Silakan hapus folder auth_info_baileys lalu scan ulang QR.");
+        console.log("🚪 Logged out dari WhatsApp. Silakan scan ulang QR.");
       }
     }
   });
 
   sock.ev.on("messages.upsert", handleMessage.bind(null, sock));
-
 }
