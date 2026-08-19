@@ -239,6 +239,11 @@ export const adminService = {
     return response.data.data;
   },
 
+  deleteUser: async (id: string) => {
+    const response = await adminApi.delete<ApiResponse<any>>(`/internal/users/${id}`);
+    return response.data.data;
+  },
+
   getSystemHealth: async () => {
     const response = await adminApi.get<ApiResponse<SystemHealthData>>('/internal/system-health');
     return response.data.data;

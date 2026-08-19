@@ -81,6 +81,29 @@ export const AdminDashboardPage: React.FC = () => {
   );
   const [isSendingBroadcast, setIsSendingBroadcast] = useState<boolean>(false);
 
+  // Realtime User Deletion State
+  const [userToDelete, setUserToDelete] = useState<any | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState<boolean>(false);
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    setIsDeletingUser(true);
+    try {
+      await adminService.deleteUser(userToDelete.id);
+      success(
+        'User Berhasil Dihapus',
+        `Pengguna ${userToDelete.name || userToDelete.phone || 'Sistem'} beserta seluruh data transaksinya telah dihapus permanen.`
+      );
+      setUsersList((prev) => prev.filter((u) => u.id !== userToDelete.id));
+      setUserToDelete(null);
+      loadData(true);
+    } catch (err: any) {
+      toastError('Gagal Menghapus User', err.response?.data?.message || err.message);
+    } finally {
+      setIsDeletingUser(false);
+    }
+  };
+
   const loadData = useCallback(async (isSilent = false) => {
     if (!isSilent) setIsLoading(true);
     else setIsRefreshing(true);
@@ -848,22 +871,47 @@ export const AdminDashboardPage: React.FC = () => {
                         {formatDateId(new Date(u.createdAt))}
                       </td>
                       <td style={{ padding: '12px 10px', textAlign: 'center' }}>
-                        <button
-                          type="button"
-                          onClick={() => openTierModal(u)}
-                          className="landing-btn-primary btn-sm"
-                          style={{
-                            padding: '6px 12px',
-                            fontSize: '11px',
-                            fontWeight: 600,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                          }}
-                        >
-                          <Sliders size={13} />
-                          <span>Atur Paket & Durasi</span>
-                        </button>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                          <button
+                            type="button"
+                            onClick={() => openTierModal(u)}
+                            className="landing-btn-primary btn-sm"
+                            style={{
+                              padding: '6px 10px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            <Sliders size={13} />
+                            <span>Atur Paket</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setUserToDelete(u)}
+                            className="landing-btn-ghost btn-sm"
+                            title="Hapus User & Seluruh Datanya"
+                            style={{
+                              padding: '6px 10px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              background: '#fee2e2',
+                              color: '#dc2626',
+                              borderRadius: '8px',
+                              border: '1px solid #fecaca',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <Trash2 size={13} />
+                            <span>Hapus</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -2641,6 +2689,174 @@ export const AdminDashboardPage: React.FC = () => {
                     <Check size={14} />
                   )}
                   <span>Simpan & Aktifkan Paket</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* DELETE USER CONFIRMATION MODAL */}
+        {/* ========================================================================= */}
+        {userToDelete && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(6px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+              zIndex: 50,
+            }}
+          >
+            <div
+              style={{
+                background: 'var(--card-bg)',
+                borderRadius: '20px',
+                border: '1px solid #fecaca',
+                maxWidth: '440px',
+                width: '100%',
+                overflow: 'hidden',
+                boxShadow: '0 25px 50px -12px rgba(220, 38, 38, 0.3)',
+              }}
+            >
+              <div
+                style={{
+                  padding: '20px 24px',
+                  borderBottom: '1px solid var(--border-color)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: '#fef2f2',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '10px',
+                      background: '#fee2e2',
+                      color: '#dc2626',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Trash2 size={18} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#991b1b' }}>
+                      Konfirmasi Hapus Pengguna
+                    </h3>
+                    <p style={{ fontSize: '11px', color: '#b91c1c' }}>
+                      Tindakan ini permanen dan tidak dapat dibatalkan
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUserToDelete(null)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#991b1b',
+                    cursor: 'pointer',
+                  }}
+                  disabled={isDeletingUser}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div style={{ padding: '24px', fontSize: '13px', lineHeight: 1.6 }}>
+                <p style={{ color: 'var(--text-primary)', marginBottom: '14px' }}>
+                  Apakah Anda yakin ingin menghapus akun pengguna berikut secara permanen?
+                </p>
+
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: '12px',
+                    background: 'var(--bg-primary)',
+                    border: '1px solid var(--border-color)',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: '14px' }}>
+                    {userToDelete.name || 'User Tanpa Nama'}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                    📱 {userToDelete.phone ? (userToDelete.phone.startsWith('62') ? `+${userToDelete.phone}` : userToDelete.phone) : '-'}
+                  </div>
+                  {userToDelete.email && (
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                      ✉️ {userToDelete.email}
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    background: '#fff7ed',
+                    border: '1px solid #fed7aa',
+                    fontSize: '11.5px',
+                    color: '#c2410c',
+                  }}
+                >
+                  ⚠️ <strong>Peringatan Sistem:</strong> Seluruh data transaksi, saldo dompet, riwayat AI, dan sesi pengguna ini akan langsung dihapus dari database PostgreSQL secara realtime.
+                </div>
+              </div>
+
+              <div
+                style={{
+                  padding: '16px 24px',
+                  background: 'var(--bg-primary)',
+                  borderTop: '1px solid var(--border-color)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: '10px',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setUserToDelete(null)}
+                  className="landing-btn-ghost btn-sm"
+                  disabled={isDeletingUser}
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteUser}
+                  disabled={isDeletingUser}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    background: '#dc2626',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '12.5px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
+                  }}
+                >
+                  {isDeletingUser ? (
+                    <RefreshCw size={14} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={14} />
+                  )}
+                  <span>{isDeletingUser ? 'Menghapus...' : 'Ya, Hapus Permanen'}</span>
                 </button>
               </div>
             </div>

@@ -98,7 +98,18 @@ export async function updateUser(id, data) {
 
 
 export async function deleteUser(id) {
-  return prisma.user.delete({ where: { id } });
+  return prisma.$transaction(async (tx) => {
+    await tx.refreshToken.deleteMany({ where: { userId: id } });
+    await tx.transaction.deleteMany({ where: { userId: id } });
+    await tx.budget.deleteMany({ where: { userId: id } });
+    await tx.wallet.deleteMany({ where: { userId: id } });
+    await tx.subscription.deleteMany({ where: { userId: id } });
+    await tx.payment.deleteMany({ where: { userId: id } });
+    await tx.aiConversation.deleteMany({ where: { userId: id } });
+    await tx.receiptOcr.deleteMany({ where: { userId: id } });
+    await tx.category.deleteMany({ where: { userId: id } });
+    return tx.user.delete({ where: { id } });
+  });
 }
 
 /* Products */
