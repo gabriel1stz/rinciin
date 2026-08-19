@@ -99,15 +99,19 @@ export async function updateUser(id, data) {
 
 export async function deleteUser(id) {
   return prisma.$transaction(async (tx) => {
+    // 1. Unlink payments so payment audit history is preserved
+    await tx.payment.updateMany({ where: { userId: id }, data: { userId: null } });
+    // 2. Delete all related user records
+    await tx.aiConversation.deleteMany({ where: { userId: id } });
+    await tx.goal.deleteMany({ where: { userId: id } });
+    await tx.upload.deleteMany({ where: { userId: id } });
     await tx.refreshToken.deleteMany({ where: { userId: id } });
     await tx.transaction.deleteMany({ where: { userId: id } });
     await tx.budget.deleteMany({ where: { userId: id } });
+    await tx.category.deleteMany({ where: { userId: id } });
     await tx.wallet.deleteMany({ where: { userId: id } });
     await tx.subscription.deleteMany({ where: { userId: id } });
-    await tx.payment.deleteMany({ where: { userId: id } });
-    await tx.aiConversation.deleteMany({ where: { userId: id } });
-    await tx.receiptOcr.deleteMany({ where: { userId: id } });
-    await tx.category.deleteMany({ where: { userId: id } });
+    // 3. Delete user
     return tx.user.delete({ where: { id } });
   });
 }
