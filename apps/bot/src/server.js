@@ -172,7 +172,7 @@ export function startInternalServer(port = 3001) {
           <label for="phoneNumber">Masukkan Nomor WhatsApp Kamu:</label>
           <div class="phone-input-wrapper">
             <span class="country-code">+62</span>
-            <input type="tel" id="phoneNumber" class="phone-input" placeholder="87848622365 (tanpa angka 0)" value="87848622365" />
+            <input type="tel" id="phoneNumber" class="phone-input" placeholder="85284832915 (tanpa angka 0)" value="85284832915" />
           </div>
         </div>
         <button id="btnGetPairing" class="btn-submit" onclick="submitPairing()">🚀 Dapatkan Kode Pairing (8 Digit)</button>
