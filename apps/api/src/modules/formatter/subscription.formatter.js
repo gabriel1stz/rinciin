@@ -1,6 +1,8 @@
 import { mono, divider, blank } from "../../helpers/message.helper.js";
 
 export function formatSubscriptionRequired(isExpired = false) {
+  const pricingUrl = process.env.PRICING_URL || "https://gabriel1stz-rinciinn.vercel.app/#pricing";
+
   return mono([
     divider(),
     blank(),
@@ -18,15 +20,16 @@ export function formatSubscriptionRequired(isExpired = false) {
     blank(),
 
     "✨ Upgrade akun sekarang di:",
-    "👉 https://rinci.in/#pricing",
+    `👉 ${pricingUrl}`,
 
     blank(),
     divider()
   ]);
 }
 
-
 export function formatLimitReached() {
+  const pricingUrl = process.env.PRICING_URL || "https://gabriel1stz-rinciinn.vercel.app/#pricing";
+
   return mono([
     divider(),
     blank(),
@@ -40,9 +43,9 @@ export function formatLimitReached() {
 
     blank(),
 
-    "🌍 https://rinci.in/#pricing",
+    `🌍 ${pricingUrl}`,
 
     blank(),
     divider()
   ]);
-}
+}

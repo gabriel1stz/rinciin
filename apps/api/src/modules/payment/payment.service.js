@@ -149,7 +149,7 @@ export async function createPaymentInvoice({
 
       // Kirim notifikasi WA trial
       try {
-        const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinci.in";
+        const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://gabriel1stz-rinciinn.vercel.app";
         const expiredStr = expiredAt.toLocaleDateString("id-ID", {
           day: "numeric",
           month: "long",

@@ -84,7 +84,7 @@ export async function processIncomingMessage(body) {
             year: "numeric"
           })
         : "7 Hari";
-      const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinci.in";
+      const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://gabriel1stz-rinciinn.vercel.app";
       return {
         success: true,
         type: "ALREADY_TRIAL",
@@ -93,10 +93,11 @@ export async function processIncomingMessage(body) {
     }
 
     if (existingTrialPayment || existingTrialSub) {
+      const pricingUrl = process.env.PRICING_URL || "https://gabriel1stz-rinciinn.vercel.app/#pricing";
       return {
         success: false,
         type: "TRIAL_ALREADY_USED",
-        text: `❌ Nomor WhatsApp ini sudah pernah menggunakan masa Trial gratis (7 Hari).\n\nUntuk terus menikmati kemudahan catat keuangan otomatis tanpa batas, silakan upgrade ke paket PRO di sini:\n👉 https://rinci.in/#pricing`
+        text: `❌ Nomor WhatsApp ini sudah pernah menggunakan masa Trial gratis (7 Hari).\n\nUntuk terus menikmati kemudahan catat keuangan otomatis tanpa batas, silakan upgrade ke paket PRO di sini:\n👉 ${pricingUrl}`
       };
     }
 
@@ -120,7 +121,7 @@ export async function processIncomingMessage(body) {
       year: "numeric"
     });
 
-    const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinci.in";
+    const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://gabriel1stz-rinciinn.vercel.app";
     const dashboardLoginUrl = `${webUrl}/login`;
 
     return {

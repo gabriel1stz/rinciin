@@ -1,4 +1,6 @@
 export function formatHelpText() {
+  const loginUrl = process.env.WEB_LOGIN_URL || "https://gabriel1stz-rinciinn.vercel.app/login";
+
   return `👋 *PANDUAN LENGKAP RINCI.IN*
 ━━━━━━━━━━━━━━
 Berikut perintah & cara penggunaan yang bisa kamu coba:
@@ -38,7 +40,8 @@ Berikut perintah & cara penggunaan yang bisa kamu coba:
 • *saran cara menabung untuk beli motor*
 
 🌐 *7. WEB DASHBOARD*
-• Akses grafik & kelola lengkap di: https://rinci.in/login
+• Akses grafik & kelola lengkap di:
+👉 ${loginUrl}
 
 Ketik perintah di atas kapan saja! 🚀`;
 }
