@@ -1,7 +1,8 @@
 import makeWASocket, {
   DisconnectReason,
   fetchLatestBaileysVersion,
-  useMultiFileAuthState
+  useMultiFileAuthState,
+  Browsers
 } from "@whiskeysockets/baileys";
 
 import P from "pino";
@@ -29,7 +30,9 @@ export async function startBot() {
     version,
     auth: state,
     logger: P({ level: "silent" }),
-    printQRInTerminal: false
+    printQRInTerminal: false,
+    browser: Browsers.ubuntu("Chrome"),
+    syncFullHistory: false
   });
 
   currentSock = sock;
@@ -61,12 +64,11 @@ export async function startBot() {
   let reconnectAttempts = 0;
 
   sock.ev.on("connection.update", ({ connection, qr, lastDisconnect }) => {
-    if (qr && !pairingPhone) {
+    if (qr) {
       setLatestQr(qr);
-      qrcode.generate(qr, { small: true });
       console.log("\n========================================");
       console.log("📱 SCAN QR CODE WHATSAPP");
-      console.log("👉 Buka link browser service bot untuk QR jernih!");
+      console.log("👉 Buka di browser untuk scan QR HD: /qr");
       console.log("========================================\n");
     }
 
