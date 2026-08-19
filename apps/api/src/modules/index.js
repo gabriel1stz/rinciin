@@ -1,0 +1,40 @@
+import { Router } from "express";
+import healthRoutes from "./health/health.routes.js";
+import userRoutes from "./user/user.routes.js";
+import messageRoutes from "./message/message.routes.js";
+import transactionRoutes from "./transaction/transaction.routes.js";
+import walletRoutes from "./wallet/wallet.routes.js";
+import chatRoutes from "./chat/chat.routes.js";
+import categoryRoutes from "./category/category.routes.js";
+import budgetRoutes from "./budget/budget.routes.js";
+import paymentRoutes from "./payment/payment.routes.js";
+import webhookRoutes from "./payment/webhook/payment.webhook.routes.js";
+import subscriptionRoutes from "./subscription/subscription.routes.js";
+import authRoutes from "./auth/auth.routes.js";
+import dashboardRoutes from "./dashboard/dashboard.routes.js";
+import authDebugRoutes from "./auth/auth.debug.routes.js";
+import internalAuthRoutes from "./internal-auth/internal-auth.routes.js";
+import internalRoutes from "./internal/internal.routes.js";
+import cronRoutes from "./cron/cron.routes.js";
+
+const router = Router();
+
+router.use("/health", healthRoutes);
+router.use("/users", userRoutes);
+router.use("/message", messageRoutes);
+router.use("/transactions", transactionRoutes);
+router.use("/wallets", walletRoutes);
+router.use("/chat", chatRoutes);
+router.use("/categories", categoryRoutes);
+router.use("/budgets", budgetRoutes);
+router.use("/payments/webhook", webhookRoutes);
+router.use("/payments", paymentRoutes);
+router.use("/subscriptions", subscriptionRoutes);
+router.use("/auth", authRoutes);
+router.use("/dashboard", dashboardRoutes);
+router.use("/auth", authDebugRoutes);
+router.use("/internal-auth", internalAuthRoutes);
+router.use("/internal", internalRoutes);
+router.use("/cron", cronRoutes);
+
+export default router;

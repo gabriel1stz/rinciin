@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Environment variables
+.env
+.env.*
+!.env.example
+apps/*/.env
+apps/*/.env.*
+!apps/*/.env.example
+
+# Build outputs
+dist
+dist-ssr
+build
+*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# WhatsApp session & media storage
+storage/sessions/*
+storage/uploads/*
+storage/exports/*
+auth_info_baileys/
+apps/bot/auth_info_baileys/
+apps/bot/session/
+session/
+
+# IDE & OS
+.DS_Store
+Thumbs.db
+.idea
+.vscode

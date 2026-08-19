@@ -1,0 +1,314 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String           @id @default(cuid())
+  phone          String           @unique
+  name           String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  avatar         String?
+  currency       String           @default("IDR")
+  email          String?          @unique
+  googleId       String?          @unique
+  tier           String           @default("free")
+  AiConversation AiConversation[]
+  budgets        Budget[]
+  Category       Category[]
+  Goal           Goal[]
+  Payment        Payment[]
+  refreshTokens  RefreshToken[]
+  subscription   Subscription[]
+  transactions   Transaction[]
+  Upload         Upload[]
+  wallets        Wallet[]
+}
+
+model Subscription {
+  id            String   @id @default(cuid())
+  userId        String
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  amount        Decimal  @db.Decimal(15, 2)
+  expiresAt     DateTime
+  orderId       String?  @unique
+  paymentMethod String?
+  startsAt      DateTime @default(now())
+  plan          String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Wallet {
+  id           String        @id @default(cuid())
+  userId       String
+  name         String
+  balance      Decimal       @default(0) @db.Decimal(15, 2)
+  icon         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  archived     Boolean       @default(false)
+  archivedAt   DateTime?
+  color        String?
+  isDefault    Boolean       @default(false)
+  type         String        @default("cash")
+  budgets      Budget[]
+  transactions Transaction[]
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Category {
+  id           String        @id @default(uuid())
+  name         String
+  keywords     String[]      @default([])
+  archived     Boolean       @default(false)
+  budgetable   Boolean       @default(true)
+  color        String        @default("#94A3B8")
+  icon         String        @default("📁")
+  isDefault    Boolean       @default(false)
+  userId       String?
+  type         String
+  budgets      Budget[]
+  User         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  products     Product[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Transaction {
+  id              String    @id @default(cuid())
+  userId          String
+  walletId        String
+  categoryId      String
+  amount          Decimal   @db.Decimal(15, 2)
+  note            String?
+  rawText         String?
+  source          String    @default("web")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  date            DateTime  @default(now())
+  deletedAt       DateTime?
+  description     String?
+  ocrText         String?
+  receiptUrl      String?
+  subCategory     String?
+  tags            String[]  @default([])
+  transactionCode String    @unique
+  transferGroupId String?
+  type            String
+  category        Category  @relation(fields: [categoryId], references: [id])
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet          Wallet    @relation(fields: [walletId], references: [id])
+
+  @@index([transactionCode])
+  @@index([userId, date])
+  @@index([userId, type])
+  @@index([walletId])
+  @@index([transferGroupId])
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  orderId       String    @unique
+  phone         String
+  plan          String
+  amount        Decimal   @default(0) @db.Decimal(15, 2)
+  paymentUrl    String?
+  method        String?
+  fee           Decimal?
+  totalPayment  Decimal?
+  paymentNumber String?
+  paidAt        DateTime?
+  expiredAt     DateTime?
+  createdAt     DateTime  @default(now())
+  userId        String?
+  status        String    @default("PENDING")
+  User          User?     @relation(fields: [userId], references: [id])
+
+  @@index([phone])
+  @@index([userId])
+}
+
+model Budget {
+  id           String    @id @default(cuid())
+  userId       String
+  categoryId   String
+  amount       Decimal   @db.Decimal(15, 2)
+  period       String    @default("MONTHLY")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  carryOver    Boolean   @default(false)
+  deletedAt    DateTime?
+  endDate      DateTime?
+  name         String?
+  notification Boolean   @default(true)
+  startDate    DateTime  @default(now())
+  walletId     String?
+  category     Category  @relation(fields: [categoryId], references: [id])
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet       Wallet?   @relation(fields: [walletId], references: [id])
+
+  @@unique([userId, categoryId])
+  @@index([userId])
+}
+
+model Otp {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  device    String?
+  userAgent String?
+  ip        String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revoked   Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model AiConversation {
+  id        String   @id
+  userId    String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Goal {
+  id          String    @id
+  userId      String
+  name        String
+  icon        String?
+  color       String?
+  target      Decimal   @db.Decimal(15, 2)
+  current     Decimal   @default(0) @db.Decimal(15, 2)
+  deadline    DateTime?
+  description String?
+  completed   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Upload {
+  id        String   @id
+  userId    String
+  filename  String
+  path      String
+  mimetype  String
+  size      Int
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  price       Decimal  @db.Decimal(15, 2)
+  image       String?
+  sku         String?
+  status      String   @default("ACTIVE")
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([categoryId])
+}
+
+model Table {
+  id          String   @id @default(cuid())
+  number      Int      @unique
+  qrCode      String?
+  status      String   @default("AVAILABLE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([number])
+}
+
+enum InternalRole {
+  SUPER_ADMIN
+  STAFF
+}
+
+model InternalUser {
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  passwordHash String
+  role         InternalRole
+  avatar       String?
+  lastLoginAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+enum NotificationType {
+  SYSTEM_ERROR
+  DATABASE_ERROR
+  AI_ERROR
+  PAYMENT_ERROR
+  FAILED_LOGIN
+}
+
+model InternalNotification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([read, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  userId     String
+  entityType String
+  entityId   String
+  before     String?
+  after      String?
+  metadata   String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
+}

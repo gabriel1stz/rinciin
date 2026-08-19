@@ -1,0 +1,16 @@
+{
+  "name": "Rinci.in",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run dev",
+    "dev:bot": "cd apps/bot && npm run dev",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "start": "cd apps/api && npm start",
+    "backup": "node scripts/backup-db.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

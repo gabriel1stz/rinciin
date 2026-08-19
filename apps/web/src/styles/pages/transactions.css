@@ -1,0 +1,65 @@
+/* transactions.css - Clean, Responsive Fintech Transaction View */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.transaction-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.transaction-mobile-list {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.transaction-mobile-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.transaction-mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.transaction-mobile-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.transaction-mobile-amount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+}
+
+@media (max-width: 960px) {
+  .transaction-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-desktop-view {
+    display: none;
+  }
+  .transaction-mobile-list {
+    display: flex;
+  }
+}

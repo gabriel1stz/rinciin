@@ -1,0 +1,34 @@
+/* index.css */
+@import './foundation/reset.css';
+@import './foundation/variables.css';
+@import './foundation/scrollbar.css';
+
+@import './components/buttons.css';
+@import './components/cards.css';
+@import './components/forms.css';
+@import './components/tables.css';
+@import './components/modal.css';
+@import './components/drawer.css';
+@import './components/badges.css';
+@import './components/toast.css';
+@import './components/tabs.css';
+@import './components/stat-cards.css';
+
+@import './layouts/app-layout.css';
+@import './layouts/sidebar.css';
+@import './layouts/header.css';
+@import './layouts/grid.css';
+
+@import './pages/landing.css';
+@import './pages/checkout.css';
+@import './pages/payment.css';
+@import './pages/auth.css';
+@import './pages/dashboard.css';
+@import './pages/wallet.css';
+@import './pages/transactions.css';
+@import './pages/budget.css';
+@import './pages/reports.css';
+@import './pages/ai.css';
+@import './pages/settings.css';
+
+@import './utilities/helpers.css';
