@@ -35,23 +35,25 @@ export async function startBot() {
   currentSock = sock;
   setBotSocket(sock);
 
-  // Auto-request Pairing Code if PAIRING_PHONE or BOT_PHONE is provided
+  // Auto-request Pairing Code if PAIRING_PHONE is provided
   const pairingPhone = process.env.PAIRING_PHONE || process.env.BOT_PHONE || process.env.PHONE_NUMBER;
   if (pairingPhone && !sock.authState.creds.registered) {
+    let cleanPhone = String(pairingPhone).replace(/\D/g, "");
+    if (cleanPhone.startsWith("0")) cleanPhone = "62" + cleanPhone.slice(1);
+    console.log(`\n📲 Meminta Kode Pairing WhatsApp untuk nomor: ${cleanPhone}...`);
+
     setTimeout(async () => {
       try {
-        let cleanPhone = String(pairingPhone).replace(/\D/g, "");
-        if (cleanPhone.startsWith("0")) cleanPhone = "62" + cleanPhone.slice(1);
         const code = await sock.requestPairingCode(cleanPhone);
-        console.log("\n========================================");
-        console.log("🔢 KODE PAIRING WHATSAPP (TANPA SCAN CAMERA):");
-        console.log(`👉👉👉  ${code}  👈👈👈`);
-        console.log("Buka WA di HP > Perangkat Tertaut > Tautkan dg nomor telepon > Masukkan kode di atas!");
-        console.log("========================================\n");
+        console.log("\n╔══════════════════════════════════════════╗");
+        console.log("║    🔢 KODE PAIRING WHATSAPP KAMU:        ║");
+        console.log(`║          👉  ${code}  👈              ║`);
+        console.log("╚══════════════════════════════════════════╝");
+        console.log("Cara pakai: Buka WA di HP > Perangkat Tertaut > Tautkan dg nomor telepon > Masukkan kode di atas!\n");
       } catch (pairErr) {
-        console.warn("⚠️ Gagal request pairing code:", pairErr.message);
+        console.error("❌ Gagal request pairing code:", pairErr.message);
       }
-    }, 3000);
+    }, 2500);
   }
 
   sock.ev.on("creds.update", saveCreds);
@@ -59,7 +61,7 @@ export async function startBot() {
   let reconnectAttempts = 0;
 
   sock.ev.on("connection.update", ({ connection, qr, lastDisconnect }) => {
-    if (qr) {
+    if (qr && !pairingPhone) {
       setLatestQr(qr);
       qrcode.generate(qr, { small: true });
       console.log("\n========================================");
