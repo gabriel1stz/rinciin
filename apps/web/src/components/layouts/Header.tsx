@@ -1,8 +1,8 @@
-// Header.tsx
 import React from 'react';
-import { Menu, Sun, Moon, Plus } from 'lucide-react';
+import { Menu, Sun, Moon, Plus, Download } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { usePwaInstall } from '../../hooks/usePwaInstall';
 import { Button } from '../ui/Button';
 import { Avatar } from '../ui/Avatar';
 
@@ -17,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
+  const { isInstallable, installApp } = usePwaInstall();
 
   return (
     <header className="app-header">
@@ -30,14 +31,29 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <div className="header-brand-mobile">
-          <div className="header-brand-mobile-logo">
-            <span>r</span>
-          </div>
+          <img
+            src="/logo.png"
+            alt="Rinci.in Logo"
+            className="header-brand-mobile-logo-img"
+          />
           <span>rinci<span style={{ color: 'var(--primary-600)' }}>.in</span></span>
         </div>
       </div>
 
       <div className="header-right">
+        {isInstallable && (
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<Download size={14} />}
+            onClick={installApp}
+            className="hidden sm:inline-flex"
+            style={{ fontSize: '11px', padding: '4px 8px', height: '32px' }}
+          >
+            <span>Install App</span>
+          </Button>
+        )}
+
         {onOpenQuickTransaction && (
           <Button
             variant="primary"

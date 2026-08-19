@@ -46,6 +46,26 @@
   gap: var(--space-3);
   padding: 0 var(--space-2) var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.sidebar-brand:hover {
+  opacity: 0.95;
+}
+
+.sidebar-brand-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  transition: transform var(--transition-normal);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+}
+
+.sidebar-brand:hover .sidebar-brand-logo-img {
+  transform: scale(1.06) rotate(-2deg);
 }
 
 .sidebar-logo {

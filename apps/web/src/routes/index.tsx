@@ -16,6 +16,8 @@ import { TransactionsPage } from '../pages/TransactionsPage';
 import { BudgetsPage } from '../pages/BudgetsPage';
 import { ReportsPage } from '../pages/ReportsPage';
 import { AiAssistantPage } from '../pages/AiAssistantPage';
+import { PrivacyPolicyPage } from '../pages/PrivacyPolicyPage';
+import { TermsPage } from '../pages/TermsPage';
 import { SettingsPage } from '../pages/SettingsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
@@ -32,6 +34,8 @@ export const AppRoutes: React.FC = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/payment/:orderId" element={<PaymentPage />} />
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
 
       {/* Admin Portal Routes */}
       <Route path="/admin/login" element={<AdminLoginPage />} />

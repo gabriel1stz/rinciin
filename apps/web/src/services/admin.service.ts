@@ -269,6 +269,18 @@ export const adminService = {
     return response.data.data;
   },
 
+  getActiveSessions: async (limit = 50) => {
+    const response = await adminApi.get<ApiResponse<any>>('/internal/active-sessions', {
+      params: { limit },
+    });
+    return response.data.data;
+  },
+
+  revokeSession: async (id: string) => {
+    const response = await adminApi.delete<ApiResponse<any>>(`/internal/active-sessions/${id}`);
+    return response.data.data;
+  },
+
   cleanupExpiredSessions: async () => {
     const response = await adminApi.post<ApiResponse<{ success: boolean; message: string; cleanedCount: number }>>(
       '/internal/maintenance/cleanup-sessions'

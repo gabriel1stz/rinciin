@@ -45,9 +45,19 @@ export async function createOrUpdateSubscription({
 }
 
 export async function findByUserId(userId) {
+  const activeSub = await prisma.subscription.findFirst({
+    where: {
+      userId,
+      status: { in: ["active", "ACTIVE", "trial", "TRIAL"] }
+    },
+    orderBy: { expiresAt: "desc" }
+  });
+
+  if (activeSub) return activeSub;
+
   return prisma.subscription.findFirst({
     where: { userId },
-    orderBy: { createdAt: "desc" }
+    orderBy: { expiresAt: "desc" }
   });
 }
 

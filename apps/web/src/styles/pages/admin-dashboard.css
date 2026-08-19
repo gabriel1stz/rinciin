@@ -30,6 +30,20 @@
   min-width: 0;
 }
 
+.admin-header-logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 10px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.12));
+  transition: transform 0.2s ease;
+}
+
+.admin-header-brand:hover .admin-header-logo-img {
+  transform: scale(1.06) rotate(-2deg);
+}
+
 .admin-header-logo {
   width: 38px;
   height: 38px;

@@ -1,5 +1,5 @@
-export function formatHelpText() {
-  const loginUrl = process.env.WEB_LOGIN_URL || "https://gabriel1stz-rinciinn.vercel.app/login";
+export function formatHelpMessage() {
+  const loginUrl = process.env.WEB_LOGIN_URL || "https://rinciin.my.id/login";
 
   return `👋 *PANDUAN LENGKAP RINCI.IN*
 ━━━━━━━━━━━━━━

@@ -35,5 +35,6 @@ export interface CreatePaymentPayload {
   phone: string;
   plan: string;
   amount?: number;
+  durationDays?: number;
   method?: string;
 }

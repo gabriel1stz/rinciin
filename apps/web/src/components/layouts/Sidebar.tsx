@@ -53,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       title: 'LAINNYA',
       items: [
-        { label: 'AI Keuangan', path: '/ai', icon: <Sparkles size={18} /> },
+        { label: 'AI Keuangan', path: '/ai', icon: <Sparkles size={18} />, badge: 'PRO' },
         { label: 'Pengaturan', path: '/settings', icon: <Settings size={18} /> },
       ],
     },
@@ -63,21 +63,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="sidebar">
       <div>
         {/* Brand */}
-        <div className="sidebar-brand">
-          <div className="sidebar-logo">
-            <span>r</span>
-          </div>
+        <NavLink
+          to="/dashboard"
+          className="sidebar-brand"
+          style={{ textDecoration: 'none' }}
+          onClick={onCloseMobile}
+        >
+          <img
+            src="/logo.png"
+            alt="Rinci.in Logo"
+            className="sidebar-brand-logo-img"
+          />
           <span className="sidebar-title">
             rinci<span style={{ color: 'var(--primary-600)' }}>.in</span>
           </span>
-        </div>
+        </NavLink>
 
         {/* Quick CTA */}
         {onOpenQuickTransaction && (
           <div style={{ padding: 'var(--space-4) 0 var(--space-2)' }}>
             <Button
               variant="primary"
-              className="w-full"
+              className="w-full justify-center shadow-sm"
               leftIcon={<Plus size={16} />}
               onClick={() => {
                 onOpenQuickTransaction();
@@ -95,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div key={group.title} className="sidebar-nav-group">
               <div className="sidebar-group-label">{group.title}</div>
               <div className="flex flex-col gap-1">
-                {group.items.map((item) => (
+                {group.items.map((item: any) => (
                   <NavLink
                     key={item.path}
                     to={item.path}
@@ -106,6 +113,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   >
                     <span className="sidebar-item-icon">{item.icon}</span>
                     <span>{item.label}</span>
+                    {item.badge && (
+                      <span
+                        style={{
+                          marginLeft: 'auto',
+                          fontSize: '9px',
+                          fontWeight: 800,
+                          padding: '1px 6px',
+                          borderRadius: '4px',
+                          background: 'linear-gradient(135deg, #10b981, #059669)',
+                          color: '#ffffff',
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                   </NavLink>
                 ))}
               </div>
@@ -128,12 +150,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   padding: '2px 6px',
                   borderRadius: '6px',
                   textTransform: 'uppercase',
-                  background: (user?.tier || '').toUpperCase() === 'PRO' || (user?.tier || '').toUpperCase() === 'FAMILY' || (user?.tier || '').toUpperCase() === 'SUPER_ADMIN'
-                    ? 'var(--primary-100, #dbeafe)'
-                    : 'var(--bg-secondary, #f1f5f9)',
-                  color: (user?.tier || '').toUpperCase() === 'PRO' || (user?.tier || '').toUpperCase() === 'FAMILY' || (user?.tier || '').toUpperCase() === 'SUPER_ADMIN'
-                    ? 'var(--primary-700, #1d4ed8)'
-                    : 'var(--text-muted, #64748b)',
+                  background:
+                    (user?.tier || '').toUpperCase() === 'PRO' ||
+                    (user?.tier || '').toUpperCase() === 'FAMILY' ||
+                    (user?.tier || '').toUpperCase() === 'SUPER_ADMIN'
+                      ? 'var(--primary-100, #dbeafe)'
+                      : 'var(--bg-secondary, #f1f5f9)',
+                  color:
+                    (user?.tier || '').toUpperCase() === 'PRO' ||
+                    (user?.tier || '').toUpperCase() === 'FAMILY' ||
+                    (user?.tier || '').toUpperCase() === 'SUPER_ADMIN'
+                      ? 'var(--primary-700, #1d4ed8)'
+                      : 'var(--text-muted, #64748b)',
                 }}
               >
                 {user?.tier || 'FREE'}

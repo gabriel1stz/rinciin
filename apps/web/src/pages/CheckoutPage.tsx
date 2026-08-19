@@ -103,11 +103,16 @@ export const CheckoutPage: React.FC = () => {
       }
 
 
+      let durationDays = 30;
+      if (duration === '6m') durationDays = 180;
+      if (duration === '1y') durationDays = 365;
+
       // 2. PAID PLAN FLOW (Create Pakasir Invoice via apps/api)
       const invoice = await paymentService.createPayment({
         phone: cleanPhone,
         plan: plan.id,
         amount: priceInfo.totalPrice,
+        durationDays,
         method: 'qris',
       });
 

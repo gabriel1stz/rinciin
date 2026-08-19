@@ -17,6 +17,22 @@ const OTP_MAX_ATTEMPTS = 5;
 const GOOGLE_CERTS_URL = "https://www.googleapis.com/oauth2/v1/certs";
 
 
+function getClientIp(req) {
+  if (!req) return null;
+  const forwarded = req.headers?.["x-forwarded-for"];
+  if (forwarded) {
+    const first = String(forwarded).split(",")[0].trim();
+    if (first) return first;
+  }
+  return (
+    req.headers?.["cf-connecting-ip"] ||
+    req.headers?.["x-real-ip"] ||
+    req.ip ||
+    req.socket?.remoteAddress ||
+    null
+  );
+}
+
 function generateAccessToken(user) {
   return jwt.sign(
     { id: user.id, phone: user.phone, tier: user.tier, role: user.role },
@@ -33,11 +49,15 @@ async function issueTokens(user, req, createRefresh = authRepository.createRefre
   const accessToken = generateAccessToken(user);
   const token = generateRefreshToken();
 
+  const ip = getClientIp(req);
+  const userAgent = req?.headers?.["user-agent"] || null;
+
   const refreshRecord = await createRefresh({
     token,
     userId: user.id,
-    device: req?.headers?.["user-agent"] || null,
-    ip: req?.ip || null,
+    device: userAgent,
+    userAgent,
+    ip,
     expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000),
   });
 

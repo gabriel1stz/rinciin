@@ -394,3 +394,24 @@ export async function listCategories(req, res) {
     return fail(res, err.message, 500);
   }
 }
+
+/* User Session Monitoring */
+export async function listActiveSessions(req, res) {
+  try {
+    const limit = Number(req.query.limit) || 50;
+    const sessions = await internalService.listActiveSessions({ limit });
+    return success(res, "Sesi aktif berhasil diambil", sessions);
+  } catch (err) {
+    return fail(res, err.message, 500);
+  }
+}
+
+export async function revokeUserSession(req, res) {
+  try {
+    const { id } = req.params;
+    const result = await internalService.revokeUserSession(id);
+    return success(res, "Sesi pengguna berhasil dicabut / diblokir", result);
+  } catch (err) {
+    return fail(res, err.message, 500);
+  }
+}

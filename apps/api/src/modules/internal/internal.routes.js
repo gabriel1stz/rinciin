@@ -43,6 +43,8 @@ router.get("/security-metrics", ctrl.getSecurityMetrics);
 router.get("/sla-metrics", ctrl.getSlaMetrics);
 router.get("/usage-metrics", ctrl.getUsageMetrics);
 router.get("/monitoring-summary", ctrl.getMonitoringSummary);
+router.get("/active-sessions", ctrl.listActiveSessions);
+router.delete("/active-sessions/:id", ctrl.revokeUserSession);
 router.post("/maintenance/cleanup-sessions", ctrl.cleanupExpiredSessions);
 router.post("/broadcast", ctrl.sendBroadcast);
 

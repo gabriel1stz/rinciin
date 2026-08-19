@@ -84,7 +84,7 @@ export async function processIncomingMessage(body) {
             year: "numeric"
           })
         : "7 Hari";
-      const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://gabriel1stz-rinciinn.vercel.app";
+      const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinciin.my.id";
       return {
         success: true,
         type: "ALREADY_TRIAL",
@@ -93,7 +93,7 @@ export async function processIncomingMessage(body) {
     }
 
     if (existingTrialPayment || existingTrialSub) {
-      const pricingUrl = process.env.PRICING_URL || "https://gabriel1stz-rinciinn.vercel.app/#pricing";
+      const pricingUrl = process.env.PRICING_URL || "https://rinciin.my.id/#pricing";
       return {
         success: false,
         type: "TRIAL_ALREADY_USED",
@@ -121,7 +121,7 @@ export async function processIncomingMessage(body) {
       year: "numeric"
     });
 
-    const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://gabriel1stz-rinciinn.vercel.app";
+    const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinciin.my.id";
     const dashboardLoginUrl = `${webUrl}/login`;
 
     return {

@@ -37,7 +37,7 @@ import {
   UsageMetricsData,
 } from '../../services/admin.service';
 import { useToast } from '../../context/ToastContext';
-import { formatDateId } from '../../utils/date';
+import { formatDateId, formatRelativeDateId } from '../../utils/date';
 
 export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,6 +55,8 @@ export const AdminDashboardPage: React.FC = () => {
   const [slaMetrics, setSlaMetrics] = useState<SlaMetricsData | null>(null);
   const [usageMetrics, setUsageMetrics] = useState<UsageMetricsData | null>(null);
   const [aiLogs, setAiLogs] = useState<any[]>([]);
+  const [activeSessions, setActiveSessions] = useState<any[]>([]);
+  const [revokingSessionId, setRevokingSessionId] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -104,12 +106,26 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  const handleRevokeUserSession = async (sessionId: string, userName?: string) => {
+    setRevokingSessionId(sessionId);
+    try {
+      await adminService.revokeSession(sessionId);
+      success('Sesi Dicabut', `Sesi untuk ${userName || 'pengguna'} berhasil diputus & diblokir.`);
+      setActiveSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      loadData(true);
+    } catch (err: any) {
+      toastError('Gagal Cabut Sesi', err.response?.data?.message || err.message);
+    } finally {
+      setRevokingSessionId(null);
+    }
+  };
+
   const loadData = useCallback(async (isSilent = false) => {
     if (!isSilent) setIsLoading(true);
     else setIsRefreshing(true);
 
     try {
-      const [dash, usersRes, healthRes, secRes, slaRes, usageRes, aiRes] =
+      const [dash, usersRes, healthRes, secRes, slaRes, usageRes, aiRes, sessionsRes] =
         await Promise.allSettled([
           adminService.getDashboard(),
           adminService.getUsers({ limit: 100 }),
@@ -118,6 +134,7 @@ export const AdminDashboardPage: React.FC = () => {
           adminService.getSlaMetrics(),
           adminService.getUsageMetrics(),
           adminService.getAiConversations({ limit: 50 }),
+          adminService.getActiveSessions(100),
         ]);
 
       if (dash.status === 'fulfilled') setDashboardData(dash.value);
@@ -127,6 +144,7 @@ export const AdminDashboardPage: React.FC = () => {
       if (slaRes.status === 'fulfilled') setSlaMetrics(slaRes.value);
       if (usageRes.status === 'fulfilled') setUsageMetrics(usageRes.value);
       if (aiRes.status === 'fulfilled') setAiLogs(aiRes.value?.conversations || []);
+      if (sessionsRes.status === 'fulfilled') setActiveSessions(sessionsRes.value || []);
     } catch (err: any) {
       if (!isSilent) toastError('Gagal Memuat Data', err.message);
     } finally {
@@ -267,7 +285,9 @@ export const AdminDashboardPage: React.FC = () => {
   };
 
   const getSubscriptionInfo = (u: any) => {
-    const sub = u.subscription?.[0];
+    const sub = Array.isArray(u.subscription)
+      ? u.subscription[0]
+      : u.subscription || u.subscriptions?.[0];
     const tier = (u.tier || 'FREE').toUpperCase();
 
     if (tier === 'FREE') {
@@ -340,9 +360,11 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Admin Top Navbar */}
       <header className="admin-header">
         <div className="admin-header-brand">
-          <div className="admin-header-logo">
-            <ShieldCheck size={20} />
-          </div>
+          <img
+            src="/logo.png"
+            alt="Rinci.in Logo"
+            className="admin-header-logo-img"
+          />
           <div className="admin-header-title-group">
             <div className="admin-header-title">
               <span>Rinci.in Ops & Admin</span>
@@ -653,6 +675,7 @@ export const AdminDashboardPage: React.FC = () => {
                     <th>Nomor WhatsApp</th>
                     <th>Paket Saat Ini</th>
                     <th>Masa Aktif Paket</th>
+                    <th>IP Terakhir & Sesi</th>
                     <th>Terdaftar</th>
                     <th style={{ textAlign: 'center' }}>Aksi Paket</th>
                   </tr>
@@ -699,6 +722,42 @@ export const AdminDashboardPage: React.FC = () => {
                         </span>
                       </td>
                       <td>{getSubscriptionInfo(u)}</td>
+                      <td>
+                        {u.refreshTokens?.[0]?.ip ? (
+                          <div>
+                            <span
+                              style={{
+                                fontFamily: 'var(--font-mono)',
+                                fontWeight: 700,
+                                fontSize: '11px',
+                                background: 'var(--bg-primary)',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                border: '1px solid var(--border-color)',
+                                display: 'inline-block',
+                                color: '#2563eb',
+                              }}
+                            >
+                              🌐 {u.refreshTokens[0].ip}
+                            </span>
+                            <div
+                              style={{
+                                fontSize: '10px',
+                                color: 'var(--text-muted)',
+                                maxWidth: '140px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                              title={u.refreshTokens[0].device || u.refreshTokens[0].userAgent || 'Web'}
+                            >
+                              {u.refreshTokens[0].device || u.refreshTokens[0].userAgent ? (u.refreshTokens[0].device || u.refreshTokens[0].userAgent).slice(0, 20) : 'Web'}
+                            </div>
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>-</span>
+                        )}
+                      </td>
                       <td style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
                         {formatDateId(new Date(u.createdAt))}
                       </td>
@@ -798,6 +857,13 @@ export const AdminDashboardPage: React.FC = () => {
 
                   <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                     Masa Aktif: {getSubscriptionInfo(u)}
+                  </div>
+
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    IP Terakhir:{' '}
+                    <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: '#2563eb' }}>
+                      {u.refreshTokens?.[0]?.ip ? `🌐 ${u.refreshTokens[0].ip}` : '-'}
+                    </span>
                   </div>
 
                   <div className="admin-user-mobile-actions">
@@ -1745,6 +1811,193 @@ export const AdminDashboardPage: React.FC = () => {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* REALTIME USER IP & ACTIVE SESSIONS MONITORING */}
+            <div
+              style={{
+                padding: '24px',
+                borderRadius: '16px',
+                background: 'var(--card-bg)',
+                border: '1px solid var(--border-color)',
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3
+                    style={{
+                      fontSize: '16px',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    <span>🌐 Live Monitoring IP Pengguna & Sesi Aktif</span>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        background: '#ecfdf5',
+                        color: '#059669',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontWeight: 700,
+                      }}
+                    >
+                      ● {activeSessions.length} Sesi Terdeteksi
+                    </span>
+                  </h3>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                    Pantau alamat IP real, tipe perangkat (User-Agent), dan kendalikan sesi mencurigakan pengguna secara realtime.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => loadData(true)}
+                  className="landing-btn-ghost btn-sm"
+                  style={{ fontSize: '11px', padding: '6px 10px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <RefreshCw size={12} className={isRefreshing ? 'animate-spin' : ''} />
+                  <span>Refresh IP</span>
+                </button>
+              </div>
+
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Pengguna</th>
+                      <th>Nomor WhatsApp</th>
+                      <th>Alamat IP Client</th>
+                      <th>Perangkat & Browser</th>
+                      <th>Waktu Login</th>
+                      <th style={{ textAlign: 'center' }}>Aksi Keamanan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeSessions.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          style={{
+                            textAlign: 'center',
+                            padding: '24px',
+                            color: 'var(--text-muted)',
+                            fontSize: '12px',
+                          }}
+                        >
+                          Belum ada data sesi login aktif yang tercatat.
+                        </td>
+                      </tr>
+                    ) : (
+                      activeSessions.map((session) => (
+                        <tr key={session.id}>
+                          <td>
+                            <div style={{ fontWeight: 600 }}>{session.user?.name || 'Pengguna'}</div>
+                            <span
+                              style={{
+                                fontSize: '9px',
+                                fontWeight: 700,
+                                padding: '1px 6px',
+                                borderRadius: '4px',
+                                textTransform: 'uppercase',
+                                background:
+                                  (session.user?.tier || '').toUpperCase() === 'PRO'
+                                    ? '#dbeafe'
+                                    : (session.user?.tier || '').toUpperCase() === 'FAMILY'
+                                    ? '#fef3c7'
+                                    : (session.user?.tier || '').toUpperCase() === 'TRIAL'
+                                    ? '#e0e7ff'
+                                    : '#f1f5f9',
+                                color:
+                                  (session.user?.tier || '').toUpperCase() === 'PRO'
+                                    ? '#1d4ed8'
+                                    : (session.user?.tier || '').toUpperCase() === 'FAMILY'
+                                    ? '#b45309'
+                                    : (session.user?.tier || '').toUpperCase() === 'TRIAL'
+                                    ? '#4338ca'
+                                    : '#64748b',
+                              }}
+                            >
+                              {session.user?.tier || 'FREE'}
+                            </span>
+                          </td>
+                          <td style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 600 }}>
+                            {session.user?.phone ? (session.user.phone.startsWith('62') ? `+${session.user.phone}` : session.user.phone) : '-'}
+                          </td>
+                          <td>
+                            <span
+                              style={{
+                                fontFamily: 'var(--font-mono)',
+                                fontWeight: 700,
+                                fontSize: '12px',
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                background: 'var(--bg-primary)',
+                                border: '1px solid var(--border-color)',
+                                color: '#2563eb',
+                                display: 'inline-block',
+                              }}
+                            >
+                              🌐 {session.ip || '127.0.0.1 (Local)'}
+                            </span>
+                          </td>
+                          <td
+                            style={{
+                              fontSize: '11px',
+                              color: 'var(--text-secondary)',
+                              maxWidth: '220px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                            title={session.device || session.userAgent || 'Web Browser'}
+                          >
+                            💻 {session.device || session.userAgent ? (session.device || session.userAgent).slice(0, 35) + '...' : 'Web Browser'}
+                          </td>
+                          <td style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
+                            {formatRelativeDateId(session.createdAt)}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleRevokeUserSession(
+                                  session.id,
+                                  session.user?.name || session.user?.phone
+                                )
+                              }
+                              disabled={revokingSessionId === session.id}
+                              className="landing-btn-ghost btn-sm"
+                              title="Putuskan sesi login pengguna ini (Kick)"
+                              style={{
+                                padding: '4px 8px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                background: '#fee2e2',
+                                color: '#dc2626',
+                                borderRadius: '6px',
+                                border: '1px solid #fecaca',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <ShieldAlert size={12} />
+                              <span>
+                                {revokingSessionId === session.id ? 'Memutus...' : 'Kick / Putus Sesi'}
+                              </span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

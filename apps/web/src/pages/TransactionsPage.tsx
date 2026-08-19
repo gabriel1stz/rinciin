@@ -14,6 +14,8 @@ import {
   ChevronRight,
   ArrowUpRight,
   ArrowDownRight,
+  Download,
+  Printer,
 } from 'lucide-react';
 import { useTransactions } from '../hooks/useTransactions';
 import { useWallets } from '../hooks/useWallets';
@@ -32,6 +34,7 @@ import { Modal } from '../components/ui/Modal';
 import { TransactionModal } from '../components/modals/TransactionModal';
 import { formatCurrency, formatSignedCurrency } from '../utils/currency';
 import { formatRelativeDateId } from '../utils/date';
+import { exportTransactionsToCsv, printFinancialReport } from '../utils/export';
 import { useDebounce } from '../hooks/useDebounce';
 import { Transaction } from '../types/transaction';
 import { containerStagger, itemFadeUp } from '../motion/variants';
@@ -80,15 +83,37 @@ export const TransactionsPage: React.FC = () => {
   const totalExpense = transactions
     .filter((t) => t.type === 'EXPENSE')
     .reduce((acc, t) => acc + Number(t.amount || 0), 0);
+  const netIncome = totalIncome - totalExpense;
+
+  const handleExportCsv = () => {
+    try {
+      exportTransactionsToCsv(transactions, `rinci-transaksi-${new Date().toISOString().slice(0, 10)}.csv`);
+      success('Export Berhasil', 'File CSV transaksi berhasil diunduh.');
+    } catch (err: any) {
+      error('Gagal Export CSV', err.message);
+    }
+  };
+
+  const handlePrintReport = () => {
+    try {
+      printFinancialReport(
+        transactions,
+        { totalIncome, totalExpense, net: netIncome },
+        'Laporan Transaksi Keuangan'
+      );
+    } catch (err: any) {
+      error('Gagal Cetak Laporan', err.message);
+    }
+  };
 
   const handleDelete = async () => {
     if (!deletingId) return;
     try {
       await deleteTransaction(deletingId);
-      success('Berhasil Dihapus', 'Transaksi berhasil dihapus');
+      success('Berhasil', 'Transaksi berhasil dihapus');
       setDeletingId(null);
     } catch (err: any) {
-      error('Gagal Menghapus Transaksi', err.response?.data?.message || err.message);
+      error('Gagal Menghapus', err.response?.data?.message || err.message);
     }
   };
 
@@ -122,13 +147,37 @@ export const TransactionsPage: React.FC = () => {
           title="Riwayat Transaksi"
           subtitle="Catat dan pantau seluruh arus keluar masuk keuanganmu"
           action={
-            <Button
-              variant="primary"
-              leftIcon={<Plus size={16} />}
-              onClick={() => setIsCreateOpen(true)}
-            >
-              + Transaksi Baru
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Download size={14} />}
+                onClick={handleExportCsv}
+                disabled={transactions.length === 0}
+                title="Unduh format spreadsheet CSV"
+              >
+                <span>Export CSV</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Printer size={14} />}
+                onClick={handlePrintReport}
+                disabled={transactions.length === 0}
+                title="Cetak atau simpan sebagai PDF"
+              >
+                <span>Cetak / PDF</span>
+              </Button>
+
+              <Button
+                variant="primary"
+                leftIcon={<Plus size={16} />}
+                onClick={() => setIsCreateOpen(true)}
+              >
+                + Transaksi Baru
+              </Button>
+            </div>
           }
         />
       </motion.div>

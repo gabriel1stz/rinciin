@@ -7,6 +7,7 @@ import {
   Trash2,
   Laptop,
   AlertTriangle,
+  Clock,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -20,7 +21,7 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Session } from '../types/auth';
-import { formatRelativeDateId } from '../utils/date';
+import { formatRelativeDateId, formatDateId } from '../utils/date';
 import { containerStagger, itemFadeUp } from '../motion/variants';
 
 export const SettingsPage: React.FC = () => {
@@ -50,6 +51,14 @@ export const SettingsPage: React.FC = () => {
       setEmail(user.email || '');
     }
   }, [user]);
+
+  useEffect(() => {
+    if (activeTab === 'subscription') {
+      authService.getMe().then((fresh) => {
+        if (fresh) updateUser(fresh);
+      }).catch(() => {});
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab === 'security') {
@@ -142,75 +151,242 @@ export const SettingsPage: React.FC = () => {
       {/* Tab Contents */}
       <motion.div variants={itemFadeUp}>
         {/* Subscription Tab */}
-        {activeTab === 'subscription' && (
-          <div className="settings-section">
-            <h3 className="card-title mb-4" style={{ marginBottom: 'var(--space-4)' }}>
-              Status Paket & Langganan
-            </h3>
+        {activeTab === 'subscription' && (() => {
+          const subsList = Array.isArray(user?.subscription)
+            ? user.subscription
+            : user?.subscription
+            ? [user.subscription]
+            : [];
+          const activeSub =
+            subsList.length > 0
+              ? [...subsList].sort(
+                  (a, b) =>
+                    new Date(b.expiresAt || 0).getTime() -
+                    new Date(a.expiresAt || 0).getTime()
+                )[0]
+              : null;
 
-            <div style={{ maxWidth: '560px' }}>
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(30, 64, 175, 0.04))',
-                  border: '1px solid var(--primary-200, #bfdbfe)',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  marginBottom: '20px',
-                }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs text-muted uppercase tracking-wider font-semibold">
-                    Paket Saat Ini
-                  </span>
-                  <span
+          const tier = (user?.tier || 'FREE').toUpperCase();
+          const isFree = tier === 'FREE';
+          const isSuperAdmin = tier === 'SUPER_ADMIN';
+
+          const getSubDetails = () => {
+            if (isSuperAdmin) {
+              return {
+                title: 'Super Admin Access',
+                badgeText: '♾️ Akses Penuh Sistem',
+                badgeColor: '#8b5cf6',
+                badgeBg: '#f3e8ff',
+                daysLeftText: 'Unlimited Access',
+                isLifetime: true,
+                isExpired: false,
+                diffDays: 9999,
+                expFormatted: 'Selamanya',
+              };
+            }
+
+            if (isFree || !activeSub) {
+              return {
+                title: 'Paket Gratis (Free)',
+                badgeText: '● Akun Standar',
+                badgeColor: '#64748b',
+                badgeBg: '#f1f5f9',
+                daysLeftText: 'Selamanya',
+                isLifetime: false,
+                isExpired: false,
+                diffDays: 0,
+                expFormatted: 'Tidak ada batas waktu',
+              };
+            }
+
+            if (!activeSub.expiresAt) {
+              return {
+                title: `Paket ${tier}`,
+                badgeText: '⭐ Aktif (Tanpa Batas)',
+                badgeColor: '#10b981',
+                badgeBg: '#ecfdf5',
+                daysLeftText: 'Aktif Tanpa Batas Waktu',
+                isLifetime: true,
+                isExpired: false,
+                diffDays: 9999,
+                expFormatted: 'Tanpa batas',
+              };
+            }
+
+            const expDate = new Date(activeSub.expiresAt);
+            const now = new Date();
+            const diffMs = expDate.getTime() - now.getTime();
+            const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+            const isLifetime = expDate.getFullYear() > 2090;
+            const isExpired = diffDays <= 0;
+
+            if (isLifetime) {
+              return {
+                title: `Paket ${tier} (Lifetime)`,
+                badgeText: '♾️ Lifetime Access',
+                badgeColor: '#8b5cf6',
+                badgeBg: '#f3e8ff',
+                daysLeftText: 'Akses Seumur Hidup',
+                isLifetime: true,
+                isExpired: false,
+                diffDays: 9999,
+                expFormatted: 'Seumur Hidup',
+              };
+            }
+
+            if (isExpired) {
+              return {
+                title: `Paket ${tier}`,
+                badgeText: '⚠️ Masa Aktif Berakhir',
+                badgeColor: '#dc2626',
+                badgeBg: '#fee2e2',
+                daysLeftText: 'Sudah Berakhir',
+                isLifetime: false,
+                isExpired: true,
+                diffDays: 0,
+                expFormatted: formatDateId(expDate),
+              };
+            }
+
+            return {
+              title: `Paket ${tier}`,
+              badgeText: `● Aktif (${diffDays} Hari Lagi)`,
+              badgeColor: diffDays <= 5 ? '#d97706' : '#059669',
+              badgeBg: diffDays <= 5 ? '#fef3c7' : '#ecfdf5',
+              daysLeftText: `${diffDays} Hari Lagi`,
+              isLifetime: false,
+              isExpired: false,
+              diffDays,
+              expFormatted: formatDateId(expDate),
+            };
+          };
+
+          const sub = getSubDetails();
+
+          return (
+            <div className="settings-section">
+              <h3 className="card-title mb-4" style={{ marginBottom: 'var(--space-4)' }}>
+                Status Paket & Langganan
+              </h3>
+
+              <div style={{ maxWidth: '580px' }}>
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(30, 64, 175, 0.04))',
+                    border: '1px solid var(--primary-200, #bfdbfe)',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-muted uppercase tracking-wider font-semibold">
+                      Paket Saat Ini
+                    </span>
+                    <span
+                      style={{
+                        background: sub.badgeBg,
+                        color: sub.badgeColor,
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        border: `1px solid ${sub.badgeColor}30`,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      {sub.badgeText}
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--primary-700, #1d4ed8)', marginBottom: '8px' }}>
+                    Rinci.in {sub.title}
+                  </div>
+
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '18px', lineHeight: 1.6 }}>
+                    {tier === 'PRO' || tier === 'FAMILY' || tier === 'SUPER_ADMIN'
+                      ? 'Akses penuh tanpa batas: Unlimited transaksi, OCR struk belanja, asisten Rinci AI, dan laporan analitik lengkap.'
+                      : 'Akses fitur dasar pengelolaan keuangan harian. Upgrade ke PRO untuk menikmati pencatatan tanpa batas dan fitur AI.'}
+                  </p>
+
+                  {/* Masa Aktif Countdown Card */}
+                  <div
                     style={{
-                      background: 'var(--success-bg, #ecfdf5)',
-                      color: 'var(--success-text, #059669)',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      padding: '3px 10px',
-                      borderRadius: '20px',
-                      border: '1px solid rgba(5, 150, 105, 0.2)',
+                      background: 'var(--bg-card, #ffffff)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '12px',
+                      padding: '14px 16px',
+                      marginBottom: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '12px',
                     }}
                   >
-                    ● Aktif
-                  </span>
-                </div>
+                    <div className="flex items-center gap-3">
+                      <div
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '10px',
+                          background: sub.badgeBg,
+                          color: sub.badgeColor,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Clock size={18} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                          SISA MASA AKTIF
+                        </div>
+                        <div style={{ fontSize: '15px', fontWeight: 800, color: sub.badgeColor }}>
+                          {sub.daysLeftText}
+                        </div>
+                      </div>
+                    </div>
 
-                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--primary-700, #1d4ed8)', marginBottom: '8px' }}>
-                  Rinci.in {(user?.tier || 'PRO').toUpperCase()}
-                </div>
-
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                  {(user?.tier || '').toUpperCase() === 'PRO' || (user?.tier || '').toUpperCase() === 'SUPER_ADMIN'
-                    ? 'Akses penuh tanpa batas: Unlimited transaksi, OCR struk belanja, asisten Rinci AI, dan laporan analitik lengkap.'
-                    : 'Akses fitur dasar pengelolaan keuangan harian.'}
-                </p>
-
-                <div className="flex flex-col gap-2 pt-3" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted">Nomor WhatsApp:</span>
-                    <span style={{ fontWeight: 600 }}>{user?.phone || '-'}</span>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        BERLAKU SAMPAI
+                      </div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        {sub.expFormatted}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted">Status Akun:</span>
-                    <span style={{ color: 'var(--success-text, #059669)', fontWeight: 600 }}>Terverifikasi (Pakasir)</span>
+
+                  <div className="flex flex-col gap-2 pt-3" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted">Nomor WhatsApp:</span>
+                      <span style={{ fontWeight: 600 }}>{user?.phone || '-'}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted">Status Akun:</span>
+                      <span style={{ color: 'var(--success-text, #059669)', fontWeight: 600 }}>
+                        {isFree ? 'Terdaftar' : 'Terverifikasi (Pakasir QRIS)'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/#pricing')}
-                >
-                  Lihat Pilihan Paket Lain
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => navigate('/#pricing')}
+                  >
+                    {isFree || sub.isExpired ? 'Upgrade ke Pro / Family' : 'Perpanjang / Ganti Paket'}
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
         {/* Profile Tab */}
         {activeTab === 'profile' && (
           <div className="settings-section">

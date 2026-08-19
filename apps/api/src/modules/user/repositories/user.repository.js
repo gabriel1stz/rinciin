@@ -3,7 +3,12 @@ import prisma from "../../../lib/prisma.js";
 export async function findById(id) {
   return prisma.user.findUnique({
     where: { id },
-    include: { subscription: true, wallets: true }
+    include: {
+      subscription: {
+        orderBy: { expiresAt: "desc" }
+      },
+      wallets: true
+    }
   });
 }
 
@@ -20,7 +25,12 @@ export async function findByPhone(phone) {
         in: [clean, withoutZero, withZero, with62]
       }
     },
-    include: { subscription: true, wallets: true },
+    include: {
+      subscription: {
+        orderBy: { expiresAt: "desc" }
+      },
+      wallets: true
+    },
     orderBy: { updatedAt: "desc" }
   });
 

@@ -35,7 +35,33 @@ export function parseAmount(text) {
     }
   }
 
-  // 2. Try Indonesian spoken words format (e.g. "dua juta", "lima puluh ribu", "seratus ribu")
+  // 2. Try Indonesian financial slang words
+  const SLANG_MAP = {
+    seceng: 1000,
+    noceng: 2000,
+    goceng: 5000,
+    ceban: 10000,
+    noban: 20000,
+    goban: 50000,
+    cepek: 100000,
+    gopek: 500000,
+    sejeti: 1000000,
+    sejutul: 1000000,
+    sejuta: 1000000,
+    seratus: 100000,
+    seribu: 1000,
+    sepat: 4000,
+    cepekceng: 100000,
+  };
+
+  for (const [slang, val] of Object.entries(SLANG_MAP)) {
+    const slangRegex = new RegExp(`\\b${slang}\\b`, 'i');
+    if (slangRegex.test(normalized)) {
+      return val;
+    }
+  }
+
+  // 3. Try Indonesian spoken words format (e.g. "dua juta", "lima puluh ribu", "seratus ribu")
   const wordAmount = parseIndonesianWordsAmount(normalized);
   if (wordAmount && wordAmount > 0) {
     return wordAmount;

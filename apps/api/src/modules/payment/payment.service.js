@@ -50,14 +50,33 @@ function createOrderId(phone, plan) {
   return `RNC-${suffix}-${Date.now()}`;
 }
 
-function getSubscriptionDurationDays(plan, amount) {
+function getSubscriptionDurationDays(plan, amount, customDays = null) {
+  if (customDays && Number(customDays) > 0) {
+    return Number(customDays);
+  }
   const normalizedPlan = String(plan || "").toLowerCase();
   const numAmount = Number(amount || 0);
 
-  // Jika pembayaran tahunan / family tahunan
-  if (numAmount >= 290000 || normalizedPlan === "family") {
-    return 365;
+  if (normalizedPlan === "trial" || normalizedPlan === "free" || numAmount === 0) {
+    return 7;
   }
+
+  // PRO / PERSONAL duration based on amount
+  // 1m: 1.000, 6m (disc 20%): 4.800, 1y (disc 35%): 7.800
+  if (normalizedPlan === "pro" || normalizedPlan === "personal") {
+    if (numAmount >= 7000) return 365;
+    if (numAmount >= 4000) return 180;
+    return 30;
+  }
+
+  // FAMILY / PREMIUM duration based on amount
+  // 1m: 59.000, 6m (disc 20%): 283.200, 1y (disc 35%): 460.200
+  if (normalizedPlan === "family" || normalizedPlan === "premium") {
+    if (numAmount >= 400000) return 365;
+    if (numAmount >= 250000) return 180;
+    return 30;
+  }
+
   return 30; // default 30 hari
 }
 
@@ -149,7 +168,7 @@ export async function createPaymentInvoice({
 
       // Kirim notifikasi WA trial
       try {
-        const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://gabriel1stz-rinciinn.vercel.app";
+        const webUrl = process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinciin.my.id";
         const expiredStr = expiredAt.toLocaleDateString("id-ID", {
           day: "numeric",
           month: "long",
@@ -252,11 +271,12 @@ async function fulfillPayment(payment, paidAtDate = null) {
     await createOrUpdateSubscription({
       userId: user.id,
       plan: payment.plan || "PRO",
-      status: "ACTIVE",
+      status: "active",
       amount: Number(payment.amount || 0),
       orderId: payment.orderId,
       paymentMethod: payment.method || "qris",
-      expiredAt
+      expiresAt: expiredAt,
+      expiredAt: expiredAt
     });
 
     // Kirim notifikasi WA otomatis
@@ -336,6 +356,32 @@ export async function processPaymentCallback(data) {
   }
 
   if (targetStatus === "PAID") {
+    // ANTI-FRAUD VERIFICATION: Double check directly with Pakasir Transaction Detail API
+    if (Number(payment.amount || 0) > 0 && process.env.PAKASIR_API_KEY) {
+      try {
+        const verifiedDetail = await fetchPakasirTransactionDetail({
+          orderId: payment.orderId,
+          amount: Number(payment.amount)
+        });
+
+        if (verifiedDetail && verifiedDetail.status) {
+          const vStatus = String(verifiedDetail.status).toLowerCase();
+          if (!["completed", "paid", "success", "sukses"].includes(vStatus)) {
+            console.warn(`🚨 [Anti-Fraud] Webhook status PAID rejected for order ${orderId}: gateway reported ${vStatus}`);
+            throw new Error("Verifikasi transaksi ke payment gateway tidak valid.");
+          }
+          if (verifiedDetail.completed_at) {
+            paidAt = new Date(verifiedDetail.completed_at);
+          }
+        }
+      } catch (verErr) {
+        if (verErr.message.includes("tidak valid")) {
+          throw verErr;
+        }
+        console.warn("⚠️ [Anti-Fraud] Gateway verify query network warning:", verErr.message);
+      }
+    }
+
     return fulfillPayment(payment, paidAt);
   }
 

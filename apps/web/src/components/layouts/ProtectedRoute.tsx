@@ -28,9 +28,14 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   // Check subscription active status
-  const latestSub = user.subscription && user.subscription.length > 0
-    ? user.subscription[0]
-    : null;
+  const latestSub =
+    user.subscription && user.subscription.length > 0
+      ? [...user.subscription].sort(
+          (a, b) =>
+            new Date(b.expiresAt || 0).getTime() -
+            new Date(a.expiresAt || 0).getTime()
+        )[0]
+      : null;
 
   const isExpired = latestSub?.expiresAt
     ? new Date(latestSub.expiresAt) < new Date()

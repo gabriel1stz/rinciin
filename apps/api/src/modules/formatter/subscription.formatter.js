@@ -1,7 +1,7 @@
 import { mono, divider, blank } from "../../helpers/message.helper.js";
 
 export function formatSubscriptionRequired(isExpired = false) {
-  const pricingUrl = process.env.PRICING_URL || "https://gabriel1stz-rinciinn.vercel.app/#pricing";
+  const pricingUrl = process.env.PRICING_URL || "https://rinciin.my.id/#pricing";
 
   return mono([
     divider(),
@@ -28,7 +28,7 @@ export function formatSubscriptionRequired(isExpired = false) {
 }
 
 export function formatLimitReached() {
-  const pricingUrl = process.env.PRICING_URL || "https://gabriel1stz-rinciinn.vercel.app/#pricing";
+  const pricingUrl = process.env.PRICING_URL || "https://rinciin.my.id/#pricing";
 
   return mono([
     divider(),

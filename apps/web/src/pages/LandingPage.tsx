@@ -21,6 +21,7 @@ import {
   Wallet,
   Users,
   Star,
+  ShieldCheck,
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -264,7 +265,7 @@ export const LandingPage: React.FC = () => {
               <motion.div variants={itemFadeUp} className="landing-hero-badge-wrap">
                 <span className="landing-trusted-pill">
                   <span className="trusted-pulse-dot" />
-                  <span>Asisten Finansial Pintar Indonesia</span>
+                  <span>⚡ Catat Keuangan Praktis via WhatsApp</span>
                 </span>
               </motion.div>
 
@@ -1092,6 +1093,58 @@ export const LandingPage: React.FC = () => {
       ---------------------------------------------------- */}
       <footer className="landing-footer">
         <div className="landing-container">
+          {/* Security & Privacy Reassurance Trust Bar */}
+          <div
+            style={{
+              padding: '16px 22px',
+              borderRadius: '16px',
+              background: 'rgba(16, 185, 129, 0.08)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+              marginBottom: '36px',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  background: 'rgba(16, 185, 129, 0.18)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#10b981',
+                  flexShrink: 0,
+                }}
+              >
+                <ShieldCheck size={20} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-primary, #f8fafc)' }}>
+                  Keamanan & Privasi Data Terjamin
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)' }}>
+                  Data keuanganmu dienkripsi aman dan tidak akan pernah dibagikan atau dijual ke pihak ketiga.
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
+              <Link to="/privacy" style={{ color: '#10b981', fontWeight: 600, textDecoration: 'none' }}>
+                Kebijakan Privasi →
+              </Link>
+              <span style={{ color: 'var(--border-color)' }}>•</span>
+              <Link to="/terms" style={{ color: '#10b981', fontWeight: 600, textDecoration: 'none' }}>
+                Syarat & Ketentuan →
+              </Link>
+            </div>
+          </div>
+
           <div className="landing-footer-grid">
             {/* Brand Column */}
             <div className="landing-footer-brand">
@@ -1127,10 +1180,10 @@ export const LandingPage: React.FC = () => {
 
             {/* Links: Legal */}
             <div className="landing-footer-col">
-              <span className="landing-footer-col-title">Legal</span>
+              <span className="landing-footer-col-title">Legal & Privasi</span>
               <ul className="landing-footer-link-list">
-                <li><Link to="/settings">Privasi Data</Link></li>
-                <li><Link to="/settings">Syarat & Ketentuan</Link></li>
+                <li><Link to="/privacy">Kebijakan Privasi</Link></li>
+                <li><Link to="/terms">Syarat & Ketentuan</Link></li>
               </ul>
             </div>
           </div>

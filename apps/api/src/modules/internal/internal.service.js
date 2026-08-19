@@ -8,10 +8,18 @@ const userSelect = {
   id: true, phone: true, name: true, email: true, avatar: true,
   tier: true, currency: true, createdAt: true, updatedAt: true,
   subscription: {
-    where: { status: "active" },
+    where: {
+      status: { in: ["active", "ACTIVE", "trial", "TRIAL"] }
+    },
     orderBy: { expiresAt: "desc" },
     take: 1,
     select: { id: true, plan: true, status: true, startsAt: true, expiresAt: true, amount: true },
+  },
+  refreshTokens: {
+    where: { revoked: false },
+    orderBy: { createdAt: "desc" },
+    take: 1,
+    select: { id: true, ip: true, device: true, userAgent: true, createdAt: true, expiresAt: true }
   },
 };
 
@@ -64,9 +72,9 @@ export async function updateUser(id, data) {
       expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
     }
 
-    // Expire old active subscriptions
+    // Expire ALL old subscriptions for this user
     await prisma.subscription.updateMany({
-      where: { userId: id, status: "active" },
+      where: { userId: id },
       data: { status: "expired" },
     });
 
@@ -83,9 +91,9 @@ export async function updateUser(id, data) {
       },
     });
   } else if (tier && tier.toLowerCase() === "free") {
-    // Expire active subscriptions
+    // Expire all active subscriptions
     await prisma.subscription.updateMany({
-      where: { userId: id, status: "active" },
+      where: { userId: id },
       data: { status: "expired", expiresAt: new Date() },
     });
   }
@@ -508,4 +516,31 @@ export async function getInternalDashboard() {
     totalAiConversations,
     recentUsers,
   };
+}
+
+export async function listActiveSessions({ limit = 50 }) {
+  return prisma.refreshToken.findMany({
+    where: { revoked: false, expiresAt: { gte: new Date() } },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+          tier: true,
+          email: true,
+          avatar: true,
+        }
+      }
+    }
+  });
+}
+
+export async function revokeUserSession(id) {
+  return prisma.refreshToken.update({
+    where: { id },
+    data: { revoked: true }
+  });
 }
