@@ -34,9 +34,9 @@ export const PLANS_CATALOG: PlanPricing[] = [
   {
     id: 'pro',
     name: 'Pro',
-    label: 'Paling diminati untuk kelola finansial pribadi komprehensif',
+    label: 'Paling diminati untuk pelajar, mahasiswa & pekerja muda',
     highlight: 'Paling Populer',
-    basePriceMonthly: 1000,
+    basePriceMonthly: 9900,
     features: [
       'Semua fitur Free Trial',
       'Unlimited dompet (Bank, E-Wallet, Cash)',
@@ -45,24 +45,24 @@ export const PLANS_CATALOG: PlanPricing[] = [
       'Input transaksi via Voice Note',
       'Advanced Reports & analisis tren',
       'Budget alert overspending realtime',
-      'Ekspor data lengkap (CSV & JSON)',
+      'Ekspor data lengkap (CSV & Excel)',
       'Riwayat transaksi tanpa batas',
     ],
     ctaText: 'Upgrade ke Pro',
   },
   {
     id: 'family',
-    name: 'Family',
-    label: 'Cocok untuk keluarga yang mau kelola keuangan bareng',
+    name: 'Family / Circle',
+    label: 'Cocok untuk patungan bareng bestie, pacar, atau keluarga',
     highlight: false,
-    basePriceMonthly: 59000,
+    basePriceMonthly: 24900,
     features: [
       'Semua fitur Pro',
-      'Hingga 5 anggota keluarga (multi-user)',
+      'Hingga 5 anggota / teman (multi-user)',
       'Shared budget & shared wallet bersama',
-      'Ringkasan arus kas keluarga terpadu',
+      'Ringkasan arus kas bersama terpadu',
       'Laporan gabungan & individual per anggota',
-      'Akses Rinci AI untuk seluruh keluarga',
+      'Akses Rinci AI untuk seluruh anggota',
       'Cukup 1 pembayaran untuk semua',
     ],
     ctaText: 'Pilih Family',
@@ -89,37 +89,66 @@ export function calculatePlanPrice(
     };
   }
 
+  if (plan.id === 'pro') {
+    switch (duration) {
+      case '6m': {
+        return {
+          monthlyPrice: 7500,
+          totalPrice: 45000,
+          originalMonthlyPrice: 9900,
+          discountPct: 24,
+          months: 6,
+          periodLabel: 'Bulan (Total Rp45.000 / 6 Bulan)',
+        };
+      }
+      case '1y': {
+        return {
+          monthlyPrice: 5750,
+          totalPrice: 69000,
+          originalMonthlyPrice: 9900,
+          discountPct: 42,
+          months: 12,
+          periodLabel: 'Bulan (Total Rp69.000 / 1 Tahun)',
+        };
+      }
+      case '1m':
+      default:
+        return {
+          monthlyPrice: 9900,
+          totalPrice: 9900,
+          months: 1,
+          periodLabel: 'Bulan',
+        };
+    }
+  }
 
+  // Family plan
   switch (duration) {
     case '6m': {
-      const discountPct = 20; // Hemat 20%
-      const discountedMonthly = Math.round((plan.basePriceMonthly * (100 - discountPct)) / 100);
       return {
-        monthlyPrice: discountedMonthly,
-        totalPrice: discountedMonthly * 6,
-        originalMonthlyPrice: plan.basePriceMonthly,
-        discountPct,
+        monthlyPrice: 16500,
+        totalPrice: 99000,
+        originalMonthlyPrice: 24900,
+        discountPct: 34,
         months: 6,
-        periodLabel: 'Bulan (Total 6 Bulan)',
+        periodLabel: 'Bulan (Total Rp99.000 / 6 Bulan)',
       };
     }
     case '1y': {
-      const discountPct = 35; // Hemat 35%
-      const discountedMonthly = Math.round((plan.basePriceMonthly * (100 - discountPct)) / 100);
       return {
-        monthlyPrice: discountedMonthly,
-        totalPrice: discountedMonthly * 12,
-        originalMonthlyPrice: plan.basePriceMonthly,
-        discountPct,
+        monthlyPrice: 10750,
+        totalPrice: 129000,
+        originalMonthlyPrice: 24900,
+        discountPct: 57,
         months: 12,
-        periodLabel: 'Bulan (Total 1 Tahun)',
+        periodLabel: 'Bulan (Total Rp129.000 / 1 Tahun)',
       };
     }
     case '1m':
     default:
       return {
-        monthlyPrice: plan.basePriceMonthly,
-        totalPrice: plan.basePriceMonthly,
+        monthlyPrice: 24900,
+        totalPrice: 24900,
         months: 1,
         periodLabel: 'Bulan',
       };

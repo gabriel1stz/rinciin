@@ -85,6 +85,54 @@ const AnimatedCounter: React.FC<{
   );
 };
 
+// Smooth Animated Price Counter (rolls smoothly from 1 to final price when toggled)
+const AnimatedPriceCounter: React.FC<{ value: number }> = ({ value }) => {
+  const [current, setCurrent] = useState<number>(() => (value === 0 ? 0 : 1));
+
+  useEffect(() => {
+    if (value === 0) {
+      setCurrent(0);
+      return;
+    }
+
+    const start = 1;
+    const end = value;
+    const duration = 650; // 0.65s snappy rolling animation
+    let startTime: number | null = null;
+    let frameId: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Fast-out, slow-down cubic easing
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const calculated = Math.round(start + (end - start) * ease);
+      setCurrent(calculated);
+
+      if (progress < 1) {
+        frameId = requestAnimationFrame(animate);
+      } else {
+        setCurrent(end);
+      }
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [value]);
+
+  if (value === 0) {
+    return <span>GRATIS</span>;
+  }
+
+  return (
+    <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      Rp{current.toLocaleString('id-ID')}
+    </span>
+  );
+};
+
 export const LandingPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -872,7 +920,7 @@ export const LandingPage: React.FC = () => {
                 onClick={() => setSelectedDuration('6m')}
               >
                 <span>6 Bulan</span>
-                <span className="landing-duration-discount">Hemat 20%</span>
+                <span className="landing-duration-discount">Hemat 24%</span>
               </button>
               <button
                 type="button"
@@ -880,7 +928,7 @@ export const LandingPage: React.FC = () => {
                 onClick={() => setSelectedDuration('1y')}
               >
                 <span>1 Tahun</span>
-                <span className="landing-duration-discount">Hemat 35%</span>
+                <span className="landing-duration-discount">Hemat 42% 🔥</span>
               </button>
             </div>
           </div>
@@ -941,16 +989,14 @@ export const LandingPage: React.FC = () => {
                         <div className="landing-pricing-price-row">
                           <AnimatePresence mode="wait">
                             <motion.span
-                              key={priceInfo.monthlyPrice}
-                              initial={{ opacity: 0, y: -6 }}
+                              key={`${plan.id}-${selectedDuration}-${priceInfo.monthlyPrice}`}
+                              initial={{ opacity: 0, y: -4 }}
                               animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 6 }}
-                              transition={{ duration: 0.2 }}
+                              exit={{ opacity: 0, y: 4 }}
+                              transition={{ duration: 0.15 }}
                               className="landing-pricing-price"
                             >
-                              {priceInfo.monthlyPrice === 0
-                                ? 'GRATIS'
-                                : formatCurrency(priceInfo.monthlyPrice)}
+                              <AnimatedPriceCounter value={priceInfo.monthlyPrice} />
                             </motion.span>
                           </AnimatePresence>
                           <span className="landing-pricing-period">

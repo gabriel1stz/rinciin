@@ -34,14 +34,14 @@ function getPlanAmount(plan) {
   const plans = {
     free: 0,
     trial: 0,
-    lite: 15000,
-    pro: 1000,
-    personal: 1000,
-    premium: 59000,
-    family: 59000,
+    lite: 9900,
+    pro: 9900,
+    personal: 9900,
+    premium: 24900,
+    family: 24900,
     business: 99000
   };
-  return plans[normalized];
+  return plans[normalized] ?? 9900;
 }
 
 function createOrderId(phone, plan) {
@@ -62,19 +62,21 @@ function getSubscriptionDurationDays(plan, amount, customDays = null) {
   }
 
   // PRO / PERSONAL duration based on amount
-  // 1m: 1.000, 6m (disc 20%): 4.800, 1y (disc 35%): 7.800
+  // 1m: 9.900, 6m: 45.000, 1y: 69.000, Lifetime: 99.000+
   if (normalizedPlan === "pro" || normalizedPlan === "personal") {
-    if (numAmount >= 7000) return 365;
-    if (numAmount >= 4000) return 180;
-    return 30;
+    if (numAmount >= 90000) return 26645; // Lifetime (s/d 2099)
+    if (numAmount >= 60000) return 365;   // 1 Tahun
+    if (numAmount >= 40000) return 180;   // 6 Bulan
+    return 30;                            // 1 Bulan
   }
 
   // FAMILY / PREMIUM duration based on amount
-  // 1m: 59.000, 6m (disc 20%): 283.200, 1y (disc 35%): 460.200
+  // 1m: 24.900, 6m: 99.000, 1y: 129.000, Lifetime: 199.000+
   if (normalizedPlan === "family" || normalizedPlan === "premium") {
-    if (numAmount >= 400000) return 365;
-    if (numAmount >= 250000) return 180;
-    return 30;
+    if (numAmount >= 180000) return 26645; // Lifetime
+    if (numAmount >= 120000) return 365;   // 1 Tahun
+    if (numAmount >= 80000) return 180;    // 6 Bulan
+    return 30;                             // 1 Bulan
   }
 
   return 30; // default 30 hari
