@@ -3,7 +3,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { storage } from '../utils/storage';
 import { ApiResponse, ApiErrorResponse } from '../types/api';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const BASE_URL = '/api';
 
 export const api = axios.create({
   baseURL: BASE_URL,
