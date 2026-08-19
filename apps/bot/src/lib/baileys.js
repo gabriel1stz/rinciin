@@ -35,6 +35,25 @@ export async function startBot() {
   currentSock = sock;
   setBotSocket(sock);
 
+  // Auto-request Pairing Code if PAIRING_PHONE or BOT_PHONE is provided
+  const pairingPhone = process.env.PAIRING_PHONE || process.env.BOT_PHONE || process.env.PHONE_NUMBER;
+  if (pairingPhone && !sock.authState.creds.registered) {
+    setTimeout(async () => {
+      try {
+        let cleanPhone = String(pairingPhone).replace(/\D/g, "");
+        if (cleanPhone.startsWith("0")) cleanPhone = "62" + cleanPhone.slice(1);
+        const code = await sock.requestPairingCode(cleanPhone);
+        console.log("\n========================================");
+        console.log("🔢 KODE PAIRING WHATSAPP (TANPA SCAN CAMERA):");
+        console.log(`👉👉👉  ${code}  👈👈👈`);
+        console.log("Buka WA di HP > Perangkat Tertaut > Tautkan dg nomor telepon > Masukkan kode di atas!");
+        console.log("========================================\n");
+      } catch (pairErr) {
+        console.warn("⚠️ Gagal request pairing code:", pairErr.message);
+      }
+    }, 3000);
+  }
+
   sock.ev.on("creds.update", saveCreds);
 
   let reconnectAttempts = 0;
