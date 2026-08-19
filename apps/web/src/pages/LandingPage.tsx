@@ -263,10 +263,11 @@ export const LandingPage: React.FC = () => {
               className="landing-hero-content"
             >
               <motion.div variants={itemFadeUp} className="landing-hero-badge-wrap">
-                <span className="landing-trusted-pill">
-                  <span className="trusted-pulse-dot" />
-                  <span>⚡ Catat Keuangan Praktis via WhatsApp</span>
-                </span>
+                <div className="landing-luxury-badge">
+                  <span className="luxury-badge-tag">FINANCIAL OS</span>
+                  <span className="luxury-badge-text">Pencatatan Keuangan Otomatis WhatsApp</span>
+                  <span className="luxury-badge-arrow">→</span>
+                </div>
               </motion.div>
 
               <motion.h1 variants={itemFadeUp} className="landing-hero-headline">
