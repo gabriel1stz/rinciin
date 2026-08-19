@@ -1,5 +1,5 @@
 import http from "http";
-import { requestPairingCode } from "./lib/baileys.js";
+import { requestPairingCode, resetAuthSession } from "./lib/baileys.js";
 
 let botSocket = null;
 let latestQr = null;
@@ -34,6 +34,15 @@ export function startInternalServer(port = 3001) {
     if (req.method === "OPTIONS") {
       res.writeHead(204);
       return res.end();
+    }
+
+    // ==========================================
+    // 0. POST /api/reset-session -> Clean restart session
+    // ==========================================
+    if (req.method === "POST" && url.pathname === "/api/reset-session") {
+      const ok = resetAuthSession();
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ success: ok, message: "Session reset and restarted" }));
     }
 
     // ==========================================

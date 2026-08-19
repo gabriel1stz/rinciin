@@ -1,3 +1,4 @@
+import fs from "fs";
 import makeWASocket, {
   DisconnectReason,
   fetchLatestBaileysVersion,
@@ -12,6 +13,23 @@ import { setBotSocket, setLatestQr, setConnectionState, setBotInfo } from "../se
 
 let currentSock = null;
 let isStarting = false;
+
+export function resetAuthSession() {
+  try {
+    if (currentSock) {
+      currentSock.end(new Error("Manual Reset"));
+    }
+    if (fs.existsSync("auth_info_baileys")) {
+      fs.rmSync("auth_info_baileys", { recursive: true, force: true });
+    }
+    console.log("🧹 [Session Reset] Folder auth_info_baileys berhasil dibersihkan.");
+    setTimeout(() => startBot(), 1500);
+    return true;
+  } catch (err) {
+    console.error("Gagal reset session:", err);
+    return false;
+  }
+}
 
 export async function requestPairingCode(phone) {
   if (!currentSock) {
@@ -64,7 +82,7 @@ export async function startBot() {
     sock.ev.on("connection.update", ({ connection, qr, lastDisconnect }) => {
       if (qr) {
         setLatestQr(qr);
-        console.log("📱 [WA QR] QR Code diperbarui untuk scan browser.");
+        console.log("📱 [WA QR] QR Code siap di browser.");
       }
 
       if (connection === "open") {
@@ -94,7 +112,13 @@ export async function startBot() {
           console.log(`🔄 [Auto-Reconnect] Menghubungkan ulang dalam ${Math.round(backoffMs / 1000)}s...`);
           setTimeout(() => startBot(), backoffMs);
         } else {
-          console.log("🚪 [WA Logout] Logged out dari WhatsApp. Silakan scan atau masukkan pairing code lagi.");
+          console.log("🧹 [401 Logged Out] Membersihkan session kadaluarsa dan restart otomatis...");
+          try {
+            if (fs.existsSync("auth_info_baileys")) {
+              fs.rmSync("auth_info_baileys", { recursive: true, force: true });
+            }
+          } catch (e) {}
+          setTimeout(() => startBot(), 2000);
         }
       }
     });
