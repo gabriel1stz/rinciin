@@ -1,5 +1,6 @@
 export function formatHelpMessage() {
-  const loginUrl = process.env.WEB_LOGIN_URL || process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinciin.my.id/login";
+  const base = String(process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinciin.my.id").trim().replace(/\/+$/, "").replace(/\/login$/, "");
+  const loginUrl = `${base}/login`;
 
   return `👋 *PANDUAN LENGKAP RINCI.IN*
 ━━━━━━━━━━━━━━
