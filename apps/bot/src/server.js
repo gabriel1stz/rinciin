@@ -32,14 +32,25 @@ export function startInternalServer(port = 3001) {
     }
 
     // ==========================================
-    // 1. GET / or /qr -> Web QR Code Scanner Page (Jernih & Mudah di-scan)
+    // 1. GET /qr-data -> JSON Realtime Endpoint (No flicker)
+    // ==========================================
+    if (req.method === "GET" && url.pathname === "/qr-data") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(
+        JSON.stringify({
+          connected: connectionState === "open",
+          qr: latestQr || null,
+          qrImageUrl: latestQr
+            ? `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=12&data=${encodeURIComponent(latestQr)}`
+            : null
+        })
+      );
+    }
+
+    // ==========================================
+    // 2. GET / or /qr -> Seamless Realtime Web QR Scanner (Anti-Reload)
     // ==========================================
     if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/qr")) {
-      const isConnected = connectionState === "open";
-      const qrImageUrl = latestQr
-        ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=15&data=${encodeURIComponent(latestQr)}`
-        : null;
-
       const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -48,60 +59,104 @@ export function startInternalServer(port = 3001) {
   <title>Hubungkan WhatsApp Bot - Rinci.in</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: #0b0f19; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-    .card { background: #131b2e; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 24px; padding: 32px 24px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.5); }
-    h1 { font-size: 20px; margin-bottom: 8px; color: #10b981; }
-    p { font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 24px; }
-    .qr-box { background: #ffffff; padding: 16px; border-radius: 16px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px; }
-    .qr-img { width: 260px; height: 260px; display: block; border-radius: 8px; }
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 600; margin-bottom: 18px; }
-    .connected { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .waiting { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .steps { text-align: left; background: #0f172a; padding: 16px; border-radius: 12px; border: 1px solid #1e293b; font-size: 12px; color: #cbd5e1; margin-top: 16px; }
+    body { background: #080d1a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .card { background: #0f172a; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 28px; padding: 36px 28px; max-width: 460px; width: 100%; text-align: center; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.7); }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #10b981; }
+    p { font-size: 13.5px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 9999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 20px; text-transform: uppercase; transition: 0.3s; }
+    .status-badge.waiting { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .status-badge.connected { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5); }
+    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+    .qr-container { background: #ffffff; padding: 18px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,0.4); margin-bottom: 22px; width: 300px; height: 300px; position: relative; }
+    .qr-img { width: 264px; height: 264px; display: block; border-radius: 10px; transition: opacity 0.2s ease; }
+    .qr-loading { color: #64748b; font-size: 13px; font-weight: 500; }
+    .steps { text-align: left; background: #1e293b; padding: 16px 20px; border-radius: 16px; border: 1px solid #334155; font-size: 12.5px; color: #cbd5e1; line-height: 1.6; }
+    .steps strong { color: #f1f5f9; display: block; margin-bottom: 6px; }
     .steps ol { padding-left: 18px; }
-    .steps li { margin-bottom: 6px; }
-    .btn-refresh { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; margin-top: 14px; transition: 0.2s; }
-    .btn-refresh:hover { background: #059669; }
+    .steps li { margin-bottom: 4px; }
+    .success-box { display: none; padding: 20px 0; }
+    .success-icon { font-size: 56px; margin-bottom: 12px; }
   </style>
-  <script>
-    setTimeout(() => {
-      window.location.reload();
-    }, 6000);
-  </script>
 </head>
 <body>
   <div class="card">
-    ${
-      isConnected
-        ? `
-      <div class="status-badge connected">● WHATSAPP TERHUBUNG</div>
-      <h1>Bot WhatsApp Online! 🎉</h1>
-      <p>Bot Rinci.in sudah aktif dan siap menerima pesan, transaksi, dan mengirim OTP.</p>
-    `
-        : `
-      <div class="status-badge waiting">● MENUNGGU SCAN</div>
+    <div id="statusBadge" class="status-badge waiting">
+      <span class="pulse-dot"></span>
+      <span id="statusText">MENUNGGU SCAN...</span>
+    </div>
+
+    <div id="scanSection">
       <h1>Scan QR WhatsApp</h1>
-      <p>Arahkan kamera WhatsApp HP kamu ke QR Code jernih di bawah ini:</p>
-      <div class="qr-box">
-        ${
-          qrImageUrl
-            ? `<img class="qr-img" src="${qrImageUrl}" alt="WhatsApp QR Code" />`
-            : `<div style="width:260px;height:260px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:12px;">Sedang memuat QR code...</div>`
-        }
+      <p>Arahkan kamera WhatsApp HP kamu ke QR Code di bawah ini (otomatis aktif tanpa refresh halaman):</p>
+
+      <div class="qr-container">
+        <div id="qrPlaceholder" class="qr-loading">Memuat QR Code WhatsApp...</div>
+        <img id="qrImage" class="qr-img" src="" alt="WhatsApp QR Code" style="display: none;" />
       </div>
+
       <div class="steps">
-        <strong>Cara Scan:</strong>
+        <strong>Cara Scan dari HP:</strong>
         <ol>
-          <li>Buka <strong>WhatsApp</strong> di HP kamu</li>
+          <li>Buka aplikasi <strong>WhatsApp</strong> di HP kamu</li>
           <li>Ketuk <strong>Menu (Titik 3)</strong> atau <strong>Settings</strong></li>
           <li>Pilih <strong>Perangkat Tertaut (Linked Devices)</strong></li>
-          <li>Ketuk <strong>Tautkan Perangkat</strong> & scan QR di atas</li>
+          <li>Ketuk <strong>Tautkan Perangkat</strong> & arahkan ke QR di atas</li>
         </ol>
       </div>
-      <button class="btn-refresh" onclick="window.location.reload()">🔄 Refresh QR Manual</button>
-    `
-    }
+    </div>
+
+    <div id="successSection" class="success-box">
+      <div class="success-icon">🎉</div>
+      <h1 style="color: #34d399; font-size: 24px;">WhatsApp Terhubung!</h1>
+      <p style="margin-top: 10px; color: #cbd5e1;">Bot Rinci.in sudah aktif 24 jam. Kamu sekarang bisa mengirim pesan transaksi dan menerima kode OTP login.</p>
+    </div>
   </div>
+
+  <script>
+    let lastQrUrl = '';
+    let isConnected = false;
+
+    async function checkQR() {
+      try {
+        const res = await fetch('/qr-data');
+        const data = await res.json();
+
+        const badge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const scanSection = document.getElementById('scanSection');
+        const successSection = document.getElementById('successSection');
+        const qrImage = document.getElementById('qrImage');
+        const qrPlaceholder = document.getElementById('qrPlaceholder');
+
+        if (data.connected) {
+          if (!isConnected) {
+            isConnected = true;
+            badge.className = 'status-badge connected';
+            statusText.innerText = 'WHATSAPP TERHUBUNG';
+            scanSection.style.display = 'none';
+            successSection.style.display = 'block';
+          }
+          return;
+        }
+
+        if (data.qrImageUrl && data.qrImageUrl !== lastQrUrl) {
+          lastQrUrl = data.qrImageUrl;
+          qrImage.src = data.qrImageUrl;
+          qrImage.onload = () => {
+            qrPlaceholder.style.display = 'none';
+            qrImage.style.display = 'block';
+          };
+        }
+      } catch (err) {
+        console.warn('Checking QR status...', err);
+      }
+    }
+
+    // Check every 2.5 seconds seamlessly without page reload
+    checkQR();
+    setInterval(checkQR, 2500);
+  </script>
 </body>
 </html>`;
 
@@ -110,7 +165,7 @@ export function startInternalServer(port = 3001) {
     }
 
     // ==========================================
-    // 2. GET /status -> Check connection status
+    // 3. GET /status -> Health check
     // ==========================================
     if (req.method === "GET" && url.pathname === "/status") {
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -123,7 +178,7 @@ export function startInternalServer(port = 3001) {
     }
 
     // ==========================================
-    // 3. POST /send-message -> Send WhatsApp message from API
+    // 4. POST /send-message -> Send WhatsApp message from API
     // ==========================================
     if (req.method === "POST" && url.pathname === "/send-message") {
       let body = "";
