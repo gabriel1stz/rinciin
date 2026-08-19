@@ -56,9 +56,9 @@ export function detectIntent(text = "") {
   const msg = text.toLowerCase().trim();
 
   // ==========================
-  // HELP
+  // HELP / MENU / START
   // ==========================
-  if (/^(help|menu|bantuan)$/i.test(msg)) {
+  if (/^(help|menu|bantuan|start|\/start|panduan)$/i.test(msg)) {
     return Intent.HELP;
   }
 

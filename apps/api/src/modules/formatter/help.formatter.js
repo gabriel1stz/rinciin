@@ -1,5 +1,5 @@
 export function formatHelpMessage() {
-  const loginUrl = process.env.WEB_LOGIN_URL || "https://rinciin.my.id/login";
+  const loginUrl = process.env.WEB_LOGIN_URL || process.env.WEB_URL || process.env.FRONTEND_URL || "https://rinciin.my.id/login";
 
   return `👋 *PANDUAN LENGKAP RINCI.IN*
 ━━━━━━━━━━━━━━
@@ -45,3 +45,5 @@ Berikut perintah & cara penggunaan yang bisa kamu coba:
 
 Ketik perintah di atas kapan saja! 🚀`;
 }
+
+export const formatHelpText = formatHelpMessage;
