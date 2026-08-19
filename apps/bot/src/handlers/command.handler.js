@@ -38,10 +38,12 @@ export async function handleCommand(sock, jid, text, pushName = "", customPhone 
         const res = await sendChat(phone, text, pushName);
 
         const reply =
-          res?.data?.text ??
-          res?.data?.message ??
-          res?.text ??
-          res?.message ??
+          res?.data?.text ||
+          res?.data?.message ||
+          res?.text ||
+          res?.message ||
+          "Maaf, saya belum memahami pesan tersebut. Ketik *menu* untuk melihat panduan.";
+
         await delay(500 + Math.floor(Math.random() * 300));
 
         await sock.sendMessage(jid, {
@@ -70,7 +72,3 @@ export async function handleCommand(sock, jid, text, pushName = "", customPhone 
     console.error("❌ Error handling command:", err.message);
   }
 }
-
-
-
-

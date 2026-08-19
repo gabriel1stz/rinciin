@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-let rawApiUrl = process.env.API_URL || "http://localhost:3000/api";
+let rawApiUrl = process.env.API_URL || "https://rinciin-production.up.railway.app/api";
 if (!rawApiUrl.endsWith("/api")) {
   rawApiUrl = `${rawApiUrl.replace(/\/+$/, "")}/api`;
 }
